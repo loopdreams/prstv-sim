@@ -4,8 +4,8 @@
    [re-frame.core :as re-frame]
    [prstv-sim.events :as events]
    [prstv-sim.views :as views]
-   [prstv-sim.config :as config]
-   ))
+   [prstv-sim.config :as config]))
+
 
 
 (defn dev-setup []

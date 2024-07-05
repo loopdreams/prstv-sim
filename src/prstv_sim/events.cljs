@@ -29,8 +29,10 @@
 
 (re-frame/reg-event-db
  ::add-form
- (fn [db [_ form type]]
+ (fn [db [_ form type party-id]]
    (let [form-data    (form db)
+         form-data    (if party-id (assoc form-data :party-id party-id)
+                          form-data)
          current-data (type (:inputs db))
          id           (if current-data
                         (-> (keys current-data)
@@ -39,3 +41,22 @@
      (-> db
          (assoc-in [:inputs type id] form-data)
          (dissoc form)))))
+
+(re-frame/reg-event-db
+ ::add-vote-config
+ (fn [db [_ config]]
+   (assoc db :vote-config config)))
+
+(re-frame/reg-event-db
+ ::save-votes
+ (fn [db [_ votes]]
+   (assoc db :total-votes votes)))
+
+(re-frame/reg-event-db
+ ::add-results
+ (fn [db [_ elected counts first-prefs counts-data]]
+   (-> db
+       (assoc-in [:results :elected] elected)
+       (assoc-in [:results :counts] counts)
+       (assoc-in [:results :first-prefs] first-prefs)
+       (assoc-in [:results :c-data] counts-data))))

@@ -24,16 +24,26 @@
    (let [form                      (type db)
          {:keys [name popularity]} form]
      (and name
-          (if (= type :party-form) (:colour form) true)
+          (if (= type :party-form) (:colour form) (:party form))
           (or (not popularity)
               (and
                (every? #(re-find #"\d" %) popularity)
-               (< popularity 100)))))))
+               (< popularity 101)))))))
 
 (re-frame/reg-sub
  ::inputs
  (fn [db [_ k id]]
    (get-in db (if id [:inputs k id] [:inputs k]))))
+
+(re-frame/reg-sub
+ ::all-inputs
+ (fn [db]
+   (:inputs db)))
+
+(re-frame/reg-sub
+ ::vote-config
+ (fn [db]
+   (:vote-config db)))
 
 (re-frame/reg-sub
  ::party-list
@@ -42,3 +52,27 @@
      (for [p parties
            :let [[_ {:keys [name]}] p]]
        name))))
+
+(re-frame/reg-sub
+ ::party-id
+ (fn [db [_ party-name]]
+   (let [parties (-> db :inputs :party)]
+     (-> (select-keys parties
+                      (for [[k {:keys [name]}] parties :when (= name party-name)] k))
+         ffirst))))
+
+(re-frame/reg-sub
+ ::total-votes
+ (fn [db]
+   (:total-votes db)))
+
+
+(re-frame/reg-sub
+ ::chart-data
+ (fn [db]
+   (:chart-data db)))
+
+(re-frame/reg-sub
+ ::results
+ (fn [db]
+   (:results db)))
