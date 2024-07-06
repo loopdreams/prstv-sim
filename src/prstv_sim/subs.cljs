@@ -2,11 +2,6 @@
   (:require
    [re-frame.core :as re-frame]))
 
-(re-frame/reg-sub
- ::name
- (fn [db]
-   (:name db)))
-
 
 (re-frame/reg-sub
  ::party-form
@@ -39,6 +34,22 @@
  ::all-inputs
  (fn [db]
    (:inputs db)))
+
+(re-frame/reg-sub
+ ::active-party-ids
+ :<- [::all-inputs]
+ (fn [all-inputs]
+   (let [cs (:candidate all-inputs)]
+     (->> cs
+          vals
+          (map :party-id)
+          (into #{})))))
+
+(re-frame/reg-sub
+ ::popularity-field-state
+ (fn [db [_ id]]
+   (get-in db [:inputs :popularity-field-state id])))
+
 
 (re-frame/reg-sub
  ::vote-config

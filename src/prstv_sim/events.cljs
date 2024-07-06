@@ -22,9 +22,22 @@
    (update-in db [:inputs k] dissoc id)))
 
 (re-frame/reg-event-db
+ ::toggle-popularity-field-state
+ (fn [db [_ id]]
+   (let [state (get-in db [:inputs :popularity-field-state id])]
+     (if state
+       (update-in db [:inputs :popularity-field-state] dissoc id)
+       (assoc-in db [:inputs :popularity-field-state id] :editing)))))
+
+(re-frame/reg-event-db
  ::update-form
  (fn [db [_ form k val]]
    (assoc-in db [form k] val)))
+
+(re-frame/reg-event-db
+ ::update-popularity-input
+ (fn [db [_ type id val]]
+   (assoc-in db [:inputs type id :popularity] val)))
 
 
 (re-frame/reg-event-db

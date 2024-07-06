@@ -5,19 +5,27 @@
    [prstv-sim.events :as events]
    [prstv-sim.vote-counter :as counter]
    [prstv-sim.inputs :as inputs]
-   [prstv-sim.vote-generator :as votes]))
+   [prstv-sim.vote-generator :as votes]
+   [prstv-sim.results-display :as results]))
 
 
-(defn input-form-top-row []
-  [:div.level {:class "box"}
-   [inputs/set-number-of-votes]
-   [inputs/set-preference-depth]
-   [inputs/set-volatility]])
+#_(defn input-form-top-row []
+    [:div.level {:class "box"}
+     [inputs/set-number-of-votes]
+     [inputs/set-preference-depth]
+     [inputs/set-volatility]])
 
 (defn input-form-mid-row []
-  [:div.level {:class "box"}
-   [inputs/party-input-table]
-   [inputs/candidate-input-table]])
+  [:div.columns
+   [:div.box
+    [inputs/party-input-table]]
+   [:div.box
+    [inputs/candidate-input-table]]
+   [:div.box
+    [inputs/set-number-of-votes]
+    [inputs/set-preference-depth]
+    [inputs/set-volatility]
+    [inputs/set-number-of-seats]]])
 
 (defn save-ballots []
   (let [vote-config @(re-frame/subscribe [::subs/vote-config])
@@ -71,19 +79,18 @@
       [:h1 {:class "title has-text-light"}
        "Single Transferrable Vote Simulator"]]
      [:div.section
-      [input-form-top-row]
       [input-form-mid-row]
-      [:div.box
-       [inputs/set-number-of-seats]]
       [:div.box
        [inputs/inputs->vote-config]
        [generate-ballots-and-calculate-results]]
       (when results
         (let [canidate-first-prefs (:first-prefs results)
-              elected              (:elected results)]
+              elected              (:elected results)
+              quota                (:quota (:c-data results))]
           [:div.box
            [:h1.title "Results"]
-           [counter/elected-display elected]
-           [counter/first-prefs-table canidate-first-prefs]
-           [counter/party-first-prefs-table canidate-first-prefs]
-           [counter/vote-counts-table results]]))]]))
+           [results/elected-display elected]
+           [results/first-prefs-table canidate-first-prefs]
+           [results/party-first-prefs-table canidate-first-prefs]
+           [:h2 [:span.has-text-weight-bold "Quota: "] quota]
+           [results/vote-counts-table results]]))]]))

@@ -27,7 +27,8 @@
     "dark green" "has-background-success has-text-success-invert"
     "light green" "has-background-primary has-text-primary-invert"
     "yellow" "has-background-warning has-text-warning-invert"
-    "red" "has-background-danger has-text-danger-invert"))
+    "red" "has-background-danger has-text-danger-invert"
+    "red"))
 
 ;; TODO perhaps allow commas in input
 (defn valid-number-of-votes? []
@@ -50,6 +51,8 @@
 (defn hoverable-info-icon [info-text]
   [:span.icon
    [:i {:class "fas fa-info-circle" :data-tooltip info-text}]])
+
+
 
 (defn set-number-of-votes []
   (let [value (re-frame/subscribe [::subs/inputs :n-votes])]
@@ -114,15 +117,32 @@
 
 
 
-
 ;; Parties & Candidates
 
-(defn party-row-display [id]
-  (let [{:keys [name popularity colour]} @(re-frame/subscribe [::subs/inputs :party id])]
+(defn edit-button [id]
+  (let [state @(re-frame/subscribe [::subs/popularity-field-state id])]
+    [:span.icon.is-clickable {:on-click #(re-frame/dispatch [::events/toggle-popularity-field-state id])}
+     [:i {:class (if (= state :editing) "fas fa-times" "fas fa-edit")}]]))
+
+(defn table-popularity-field-display [id popularity key]
+  (let [field-state @(re-frame/subscribe [::subs/popularity-field-state id])]
+    (if (= field-state :editing)
+      [:td [:input.input {:class "is-small"
+                          :size 5
+                          :type "text" :placeholder popularity
+                          :on-change #(re-frame/dispatch [::events/update-popularity-input key id (-> % .-target .-value)])}]]
+      [:td (str popularity "%  ")])))
+
+
+(defn party-row-display [id active-party-ids]
+  (let [{:keys [name popularity colour]} @(re-frame/subscribe [::subs/inputs :party id])
+        editing? @(re-frame/subscribe [::subs/popularity-field-state id])]
     [:tr
      [:th {:class (get-bulma-style colour)} name]
-     [:td (when popularity (str popularity " %"))]
-     [:td [:button.delete {:on-click #(re-frame/dispatch [::events/delete-inputs :party id])}]]]))
+     [table-popularity-field-display id popularity :party]
+     [edit-button id]
+     (when (and (not (active-party-ids id)) (not editing?))
+       [:td [:button.delete {:on-click #(re-frame/dispatch [::events/delete-inputs :party id])}]])]))
 
 (defn candidate-row-display [id]
   (let [{:keys [name popularity party-id]} @(re-frame/subscribe [::subs/inputs :candidate id])
@@ -132,7 +152,8 @@
     [:tr
      [:th name]
      [:td {:class (get-bulma-style colour)} p-name]
-     [:td (when popularity (str popularity " %"))]
+     [table-popularity-field-display id popularity :candidate]
+     [edit-button id]
      [:td [:button.delete {:on-click #(re-frame/dispatch [::events/delete-inputs :candidate id])}]]]))
 
 (defn add-entries-form [{:keys [form-type form-name name-val pop-val col-party-name col-party-val select-list party-id valid]}]
@@ -198,8 +219,9 @@
       :valid          is-valid?}]))
 
 (defn party-input-table []
-  (let [data (re-frame/subscribe [::subs/inputs :party])
-        row-ids (keys @data)]
+  (let [data @(re-frame/subscribe [::subs/inputs :party])
+        row-ids (keys data)
+        active-party-ids @(re-frame/subscribe [::subs/active-party-ids])]
     [:div.section
      [:h2.title "Parties"]
      (when row-ids
@@ -210,7 +232,7 @@
           [:th "Popularity"]
           [:th ""]]]
         [:tbody
-         (map party-row-display row-ids)]])
+         (map #(party-row-display % active-party-ids) row-ids)]])
      [party-row-add]]))
 
 (defn candidate-input-table []
@@ -234,15 +256,17 @@
 
 
 (defn name->keyword [name]
-  (-> name
-      str/lower-case
-      (str/replace #" " "-")
-      keyword))
+  (when name
+    (-> name
+        str/lower-case
+        (str/replace #" " "-")
+        keyword)))
 
 (defn keyword->name [kw]
-  (->>
-   (map str/capitalize (-> (name kw) (str/split #"-")))
-   (str/join " ")))
+  (when kw
+    (->>
+     (map str/capitalize (-> (name kw) (str/split #"-")))
+     (str/join " "))))
 
 
 
