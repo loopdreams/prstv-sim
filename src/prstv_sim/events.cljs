@@ -77,11 +77,13 @@
        (assoc-in [:my-ballot cand-name] preference)
        (update :available-preferences disj (parse-long preference)))))
 
+
 (re-frame/reg-event-db
  ::add-results
- (fn [db [_ elected counts first-prefs counts-data]]
+ (fn [db [_ elected counts first-prefs counts-data ballot-id]]
    (-> db
        (assoc-in [:results :elected] elected)
        (assoc-in [:results :counts] counts)
        (assoc-in [:results :first-prefs] first-prefs)
-       (assoc-in [:results :c-data] counts-data))))
+       (assoc-in [:results :c-data] counts-data)
+       (assoc :marked-ballot ballot-id))))

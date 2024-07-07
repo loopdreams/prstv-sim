@@ -10,18 +10,28 @@
    [reagent.core :as reagent]))
 
 
+(defn convert-my-ballot [preferences]
+  (let [id (str (random-uuid))
+        ballot (reduce (fn [b [name pref]]
+                         (assoc b (inputs/name->keyword name) (parse-long pref)))
+                       {}
+                       preferences)]
+    (zipmap [id] [ballot])))
 
 
 (defn generate-ballots-and-calculate-results []
-  (let [vote-config @(re-frame/subscribe [::subs/vote-config])]
+  (let [vote-config @(re-frame/subscribe [::subs/vote-config])
+        my-ballot   @(re-frame/subscribe [::subs/my-ballot])
+        ballot      (if my-ballot (convert-my-ballot my-ballot)
+                        {})]
     (when vote-config
-      (let [ballots (votes/prstv-vote-generator vote-config)
-            seats   (:n-seats vote-config)
-            candidates (:candidates vote-config)
-            [elected counts first-prefs c-data] (counter/run-vote-counts candidates ballots seats)]
+      (let [ballots                             (votes/prstv-vote-generator vote-config)
+            seats                               (:n-seats vote-config)
+            candidates                          (:candidates vote-config)
+            [elected counts first-prefs c-data] (counter/run-vote-counts candidates (merge ballots ballot) seats)]
         [:div
          [:button.button
-          {:on-click #(re-frame/dispatch [::events/add-results elected counts first-prefs c-data])}
+          {:on-click #(re-frame/dispatch [::events/add-results elected counts first-prefs c-data (when (seq ballot) (ffirst ballot))])}
           "Calculate Results"]]))))
 
 

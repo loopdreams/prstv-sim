@@ -10,25 +10,25 @@
                 :options {:scales {:y {:beginAtZero true}}}}
    :inputs {:n-votes "1000"
             :n-seats "4"
-            :volatility "15"
+            :volatility "10"
             :preference-depth "mid"
             :party {1 {:name "Party A"
-                       :popularity "32"
+                       :popularity "23"
                        :colour "dark blue"}
                     2 {:name "Party B"
-                       :popularity "28"
+                       :popularity "21"
                        :colour "dark green"}
                     3 {:name "Party C"
-                       :popularity "36"
+                       :popularity "18"
                        :colour "red"}
                     4 {:name "Independant"
-                       :popularity "10"
+                       :popularity "15"
                        :colour "default"}}
             :candidate {1 {:name "Captain Hook"
-                           :popularity "3"
+                           :popularity "9"
                            :party-id 4}
                         2 {:name "Peter Pan"
-                           :popularity "28"
+                           :popularity "23"
                            :party-id 1}
                         3 {:name "Cruella"
                            :popularity "12"
@@ -40,11 +40,14 @@
                            :popularity "26"
                            :party-id 2}
                         6 {:name "Queen Bee"
-                           :popularity "38"
+                           :popularity "30"
                            :party-id 4}
                         7 {:name "Micky Mouse"
                            :popularity "18"
                            :party-id 3}
                         8 {:name "Minnie Mouse"
                            :popularity "19"
-                           :party-id 3}}}})
+                           :party-id 3}
+                        9 {:name "Lost Boy"
+                           :popularity "15"
+                           :party-id 1}}}})

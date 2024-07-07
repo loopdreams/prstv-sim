@@ -219,9 +219,7 @@
                                              (vote-counts p)
                                              first-pref-votes
                                              (-> count-states
-                                                 (assoc-in [:counts count-n]
-                                                           {:piles p
-                                                            :counts (vote-counts p)})
+
                                                  (assign-candidate-position
                                                   positions
                                                   active
@@ -232,9 +230,7 @@
                                                                 (vote-counts p)
                                                                 first-pref-votes
                                                                 (-> count-states
-                                                                    (assoc-in [:counts count-n]
-                                                                              {:piles p
-                                                                               :counts (vote-counts p)})
+
                                                                     (assign-candidate-position
                                                                      positions
                                                                      active
