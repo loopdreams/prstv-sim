@@ -56,64 +56,114 @@
 
 (defn set-number-of-votes []
   (let [value (re-frame/subscribe [::subs/inputs :n-votes])]
-    [:div.field
-     [:label.label "Number of Votes" [hoverable-info-icon "TODO"]]
-     [:input.input
-      {:type "text"
-       :value @value
-       :placeholder "Enter number of votes"
-       :on-change
-       #(re-frame/dispatch [::events/update-inputs :n-votes (-> % .-target .-value)])}]
-     (when (and (seq @value) (not (valid-number-of-votes?)))
-       [:div.has-text-danger
-        (p/cl-format nil "Total number of votes must be a NUMBER less than ~:d." n-votes-limit)])]))
+    [:div.field.is-horizontal
+     [:div.field-label
+      [:label.label "Number of Votes" [hoverable-info-icon "TODO"]]]
+     [:div.field-body
+      [:div.control
+       [:input.input
+        {:type "text"
+         :value @value
+         :placeholder "Enter number of votes"
+         :on-change
+         #(re-frame/dispatch [::events/update-inputs :n-votes (-> % .-target .-value)])}]
+       (when (and (seq @value) (not (valid-number-of-votes?)))
+         [:div.has-text-danger
+          (p/cl-format nil "Total number of votes must be a NUMBER less than ~:d." n-votes-limit)])]]]))
 
 (defn set-number-of-seats []
   (let [value (re-frame/subscribe [::subs/inputs :n-seats])]
-    [:div.field
-     [:label.label "Number of Seats" [hoverable-info-icon "TODO"]]
-     [:input.input
-      {:type "text"
-       :value @value
-       :placeholder "Enter number of seats"
-       :on-change
-       #(re-frame/dispatch [::events/update-inputs :n-seats (-> % .-target .-value)])}]
-     (when (and (seq @value) (not (valid-number-of-seats?)))
-       [:div.has-text-danger
-        "Number of seats has to be a number greater than 0 and less than the total number of candidates."])]))
-
-
-
+    [:div.field.is-horizontal
+     [:div.field-label
+      [:label.label "Number of Seats" [hoverable-info-icon "TODO"]]]
+     [:div.field-body
+      [:div.control
+       [:input.input
+        {:type "text"
+         :value @value
+         :placeholder "Enter number of seats"
+         :on-change
+         #(re-frame/dispatch [::events/update-inputs :n-seats (-> % .-target .-value)])}]
+       (when (and (seq @value) (not (valid-number-of-seats?)))
+         [:div.has-text-danger
+          "Number of seats has to be a number greater than 0 and less than the total number of candidates."])]]]))
 
 (defn set-preference-depth []
-  [:div.field
-   [:label.label "Preference Depth" [hoverable-info-icon "TODO"]]
-   [:div.control
-    (map (fn [text]
-           [:label.radio
-            [:input
-             {:type "radio"
-              :name "preference-depth"
-              :on-change #(when (-> % .-target .-checked)
-                            (re-frame/dispatch [::events/update-inputs
-                                                :preference-depth
-                                                (keyword (str/lower-case text))]))}]
-            (str " " text)])
-         preferce-depth-options)]])
+  [:div.field.is-horizontal
+   [:div.field-label
+    [:label.label "Preference Depth" [hoverable-info-icon "TODO"]]]
+   [:div.field-body
+    [:div.control
+     (map (fn [text]
+            [:label.radio
+             [:input
+              {:type "radio"
+               :name "preference-depth"
+               :on-change #(when (-> % .-target .-checked)
+                             (re-frame/dispatch [::events/update-inputs
+                                                 :preference-depth
+                                                 (keyword (str/lower-case text))]))}]
+             (str " " text)])
+          preferce-depth-options)]]])
+
+
 
 (defn set-volatility []
   (let [value (re-frame/subscribe [::subs/inputs :volatility])]
-    [:div.field
-     [:label.label "Volatility" [hoverable-info-icon "TODO"]]
-     [:input.input
-      {:type "text"
-       :value @value
-       :placeholder "(Optional) Enter number between 1 and 100"
-       :on-change
-       #(re-frame/dispatch [::events/update-inputs :volatility (-> % .-target .-value)])}]
-     (when (and (seq @value) (not (valid-number-volatility?)))
-       [:div.has-text-danger
-        "Use a number between 1 and 100"])]))
+    [:div.field.is-horizontal
+     [:div.field-label.is-normal
+      [:label.label "Volatility" [hoverable-info-icon "TODO"]]]
+     [:div.field-body
+      [:div.field.is-narrow
+       [:div.control
+        [:input.input
+         {:type "text"
+          :value @value
+          :placeholder "(Optional) Enter number between 1 and 100"
+          :on-change
+          #(re-frame/dispatch [::events/update-inputs :volatility (-> % .-target .-value)])}]
+        (when (and (seq @value) (not (valid-number-volatility?)))
+          [:div.has-text-danger
+           "Use a number between 1 and 100"])]]]]))
+
+
+;; TODO fix 'available preferences' here - doesn't update properly
+(defn ballot-form-row [cand-name]
+  (let [available-preferences (re-frame/subscribe [::subs/available-preferences])
+        val (-> @(re-frame/subscribe [::subs/my-ballot]) :candidate)]
+    [:div.field.is-horizontal
+     [:div.field-label
+      [:label.label cand-name]]
+     [:div.field-body
+      [:div.control
+       [:div.select
+        [:select
+         {:value val
+          :on-change #(re-frame/dispatch [::events/update-my-ballot cand-name (-> % .-target .-value)])}
+         [:option "Select Preference"]
+         (map (fn [n] [:option n]) @available-preferences)]]]]]))
+
+(defn user-ballot-form []
+  (let [candidates @(re-frame/subscribe [::subs/inputs :candidate])
+        my-ballot? @(re-frame/subscribe [::subs/my-ballot?])
+        c-names (->> (vals candidates) (map :name))
+        n-candidates (count c-names)]
+    (if my-ballot?
+      [:div.box
+       [:h2.title.is-4 "My Ballot"]
+       (map ballot-form-row c-names)]
+      [:button.button {:on-click #(re-frame/dispatch [::events/activate-my-ballot n-candidates])}
+       "Create and Track your own ballot"])))
+
+
+(defn set-vote-params []
+  [:div.box
+   [:h2.title.is-4 "Vote Config"]
+   [set-number-of-votes]
+   [set-number-of-seats]
+   [set-preference-depth]
+   [set-volatility]])
+
 
 
 
@@ -138,11 +188,13 @@
   (let [{:keys [name popularity colour]} @(re-frame/subscribe [::subs/inputs :party id])
         editing? @(re-frame/subscribe [::subs/popularity-field-state id])]
     [:tr
+     (if (and (not (active-party-ids id)) (not editing?))
+       [:td [:button.delete {:on-click #(re-frame/dispatch [::events/delete-inputs :party id])}]]
+       [:td ""])
      [:th {:class (get-bulma-style colour)} name]
      [table-popularity-field-display id popularity :party]
-     [edit-button id]
-     (when (and (not (active-party-ids id)) (not editing?))
-       [:td [:button.delete {:on-click #(re-frame/dispatch [::events/delete-inputs :party id])}]])]))
+     [edit-button id]]))
+
 
 (defn candidate-row-display [id]
   (let [{:keys [name popularity party-id]} @(re-frame/subscribe [::subs/inputs :candidate id])
@@ -150,38 +202,47 @@
         colour (:colour party-data)
         p-name (:name party-data)]
     [:tr
+     [:td [:button.delete {:on-click #(re-frame/dispatch [::events/delete-inputs :candidate id])}]]
      [:th name]
      [:td {:class (get-bulma-style colour)} p-name]
      [table-popularity-field-display id popularity :candidate]
-     [edit-button id]
-     [:td [:button.delete {:on-click #(re-frame/dispatch [::events/delete-inputs :candidate id])}]]]))
+     [edit-button id]]))
+
 
 (defn add-entries-form [{:keys [form-type form-name name-val pop-val col-party-name col-party-val select-list party-id valid]}]
-  [:div
-   [:form.box
-    [:div.field
-     [:label.label "Name"]
-     [:div.control
-      [:input.input {:type "text" :placeholder (str "Enter " (name form-name) " name") :value name-val
-                     :on-change #(re-frame/dispatch [::events/update-form form-type :name (-> % .-target .-value)])}]]]
-    [:div.field
-     [:label.label "Popularity"]
-     [:div.control
-      [:input.input {:type "text" :placeholder "(Optional) Number between 1 and 100" :value pop-val
-                     :on-change #(re-frame/dispatch [::events/update-form form-type :popularity (-> % .-target .-value)])}]]]
-    [:div.field
-     [:label.label (str/capitalize (name col-party-name))]
-     [:div.control
-      [:div.select
-       [:select {:value col-party-val
-                 :on-change #(re-frame/dispatch [::events/update-form form-type col-party-name (-> % .-target .-value)])}
-        [:option (str "Select " (name col-party-name))]
-        (map (fn [v] [:option {:key v :val v} v]) select-list)]]]]]
-   [:button.button
-    {:disabled (not valid)
-     :class "is-primary"
-     :on-click #(re-frame/dispatch [::events/add-form form-type form-name (when party-id party-id)])}
-    (str "Add " (name form-name))]])
+  [:div.pt-4
+   [:form
+    [:div.field.is-horizontal
+     [:div.field-label
+      [:label.label "Name"]]
+     [:div.field-body
+      [:div.control
+       [:input.input {:type "text" :placeholder (str "Enter " (name form-name) " name") :value name-val
+                      :on-change #(re-frame/dispatch [::events/update-form form-type :name (-> % .-target .-value)])}]]]]
+    [:div.field.is-horizontal
+     [:div.field-label
+      [:label.label "Popularity"]]
+     [:div.field-body
+      [:div.control
+       [:input.input {:type "text" :placeholder "(Optional) Number between 1 and 100" :value pop-val
+                      :on-change #(re-frame/dispatch [::events/update-form form-type :popularity (-> % .-target .-value)])}]]]]
+    [:div.field.is-horizontal
+     [:div.field-label
+      [:label.label (str/capitalize (name col-party-name))]]
+     [:div.field-body
+      [:div.control
+       [:div.select
+        [:select {:value col-party-val
+                  :on-change #(re-frame/dispatch [::events/update-form form-type col-party-name (-> % .-target .-value)])}
+         [:option (str "Select " (name col-party-name))]
+         (map (fn [v] [:option {:key v :val v} v]) select-list)]]]]]]
+   [:div.pt-4
+    [:button.button
+     {:disabled (not valid)
+      :class "is-primary"
+      :on-click #(re-frame/dispatch [::events/add-form form-type form-name (when party-id party-id)])}
+     (str "Add " (name form-name) " to table")]]])
+
 
 (defn party-row-add []
   (let [value      @(re-frame/subscribe [::subs/party-form])
@@ -222,35 +283,43 @@
   (let [data @(re-frame/subscribe [::subs/inputs :party])
         row-ids (keys data)
         active-party-ids @(re-frame/subscribe [::subs/active-party-ids])]
-    [:div.section
-     [:h2.title "Parties"]
-     (when row-ids
-       [:table.table
-        [:thead
-         [:tr
-          [:th "Name"]
-          [:th "Popularity"]
-          [:th ""]]]
-        [:tbody
-         (map #(party-row-display % active-party-ids) row-ids)]])
-     [party-row-add]]))
+    [:div.box
+     [:h2.title.is-4 "Parties"]
+     [:div.columns
+      [:div.column.is-two-fifths
+       [party-row-add]]
+      [:div.column
+       (when row-ids
+         [:table.table
+          [:thead
+           [:tr
+            [:th ""]
+            [:th "Name"]
+            [:th "Popularity"]]]
+          [:tbody
+           (map #(party-row-display % active-party-ids) row-ids)]])]]]))
 
 (defn candidate-input-table []
   (let [data (re-frame/subscribe [::subs/inputs :candidate])
         row-ids (keys @data)]
-    [:div.section
-     [:h2.title "Candidates"]
-     (when row-ids
-       [:table.table
-        [:thead
-         [:tr
-          [:th "Name"]
-          [:th "Party"]
-          [:th "Popularity"]
-          [:th ""]]]
-        [:tbody
-         (map candidate-row-display row-ids)]])
-     [candidate-row-add]]))
+    [:div.box
+     [:h2.title.is-4 "Candidates"]
+     [:div.columns
+      [:div.column.is-two-fifths
+       [candidate-row-add]]
+      [:div.column
+       (when row-ids
+         [:table.table
+          [:thead
+            [:tr
+             [:th ""]
+             [:th "Name"]
+             [:th "Party"]
+             [:th "Popularity"]]]
+          [:tbody
+           (map candidate-row-display row-ids)]])]]]))
+
+
 
 ;; Convert Inputs to Vote Map
 

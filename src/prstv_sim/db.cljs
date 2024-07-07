@@ -1,7 +1,7 @@
 (ns prstv-sim.db)
 
 (def default-db
-  {:name "re-frame"
+  {:marked-ballot 1
    :chart-data {:type "bar"
                 :data {:labels ["Red" "Blue" "Yellow"]
                        :datasets [{:label "# of Votes"

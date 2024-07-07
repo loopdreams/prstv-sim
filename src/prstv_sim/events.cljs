@@ -10,7 +10,6 @@
  (fn-traced [_ _]
    db/default-db))
 
-
 (re-frame/reg-event-db
  ::update-inputs
  (fn [db [_ k val]]
@@ -39,7 +38,6 @@
  (fn [db [_ type id val]]
    (assoc-in db [:inputs type id :popularity] val)))
 
-
 (re-frame/reg-event-db
  ::add-form
  (fn [db [_ form type party-id]]
@@ -64,6 +62,20 @@
  ::save-votes
  (fn [db [_ votes]]
    (assoc db :total-votes votes)))
+
+(re-frame/reg-event-db
+ ::activate-my-ballot
+ (fn [db [_ n-candidates]]
+   (-> db
+       (assoc :available-preferences (into #{} (map inc (range n-candidates))))
+       (assoc :my-ballot? true))))
+
+(re-frame/reg-event-db
+ ::update-my-ballot
+ (fn [db [_ cand-name preference]]
+   (-> db
+       (assoc-in [:my-ballot cand-name] preference)
+       (update :available-preferences disj (parse-long preference)))))
 
 (re-frame/reg-event-db
  ::add-results

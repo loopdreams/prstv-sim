@@ -50,11 +50,30 @@
  (fn [db [_ id]]
    (get-in db [:inputs :popularity-field-state id])))
 
-
 (re-frame/reg-sub
  ::vote-config
  (fn [db]
    (:vote-config db)))
+
+(re-frame/reg-sub
+ ::marked-ballot
+ (fn [db]
+   (:marked-ballot db)))
+
+(re-frame/reg-sub
+ ::my-ballot?
+ (fn [db]
+   (:my-ballot? db)))
+
+(re-frame/reg-sub
+ ::my-ballot
+ (fn [db]
+     (:my-ballot db)))
+
+(re-frame/reg-sub
+ ::available-preferences
+ (fn [db]
+   (:available-preferences db)))
 
 (re-frame/reg-sub
  ::party-list
@@ -76,7 +95,6 @@
  ::total-votes
  (fn [db]
    (:total-votes db)))
-
 
 (re-frame/reg-sub
  ::chart-data

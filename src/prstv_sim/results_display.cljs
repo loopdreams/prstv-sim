@@ -6,23 +6,22 @@
             [clojure.set :as set]))
 
 
-(defn first-prefs-chart-data [counts]
-  (let [data (reduce (fn [data candidate]
-                       (conj data
-                             (-> {}
-                                 (assoc :candidate candidate)
-                                 (assoc :votes (candidate counts)))))
-                     []
-                     (keys counts))]
-    {:$schema "https://vega.github.io/schema/vega-lite/v5.json"
-     :data {:values data}
-     :mark {:type :bar}
-     :width 500
-     :encoding {:x {:field :candidate
-                    :type :nominal}
-                :y {:field :votes
-                    :type :quantitative}}}))
-
+#_(defn first-prefs-chart-data [counts]
+    (let [data (reduce (fn [data candidate]
+                         (conj data
+                               (-> {}
+                                   (assoc :candidate candidate)
+                                   (assoc :votes (candidate counts)))))
+                       []
+                       (keys counts))]
+      {:$schema "https://vega.github.io/schema/vega-lite/v5.json"
+       :data {:values data}
+       :mark {:type :bar}
+       :width 500
+       :encoding {:x {:field :candidate
+                      :type :nominal}
+                  :y {:field :votes
+                      :type :quantitative}}}))
 
 
 (defn first-prefs-row-display [data]
@@ -32,7 +31,6 @@
      [:th {:class colour-class} (inputs/keyword->name name)]
      [:td votes]
      [:td percent]]))
-
 
 (defn first-prefs-table [data]
   (let [total-votes (reduce + (vals data))
@@ -89,7 +87,6 @@
      [:div
       (map #(elected-candidate-display % vote-config) elected)]]))
 
-
 (defn vote-counts-header-row [count-ns]
   [:thead
    [:tr
@@ -99,26 +96,30 @@
     [:th "Share"]
     (map (fn [n] [:th (str "Count " (inc n))]) count-ns)]])
 
-(defn colour-candidate-exit [candidate exit-at nth-col elected data]
-  [:span (when (= exit-at (inc nth-col))
-           (if (elected candidate)
-             {:class "has-text-sucess has-background-success-light"}
-             {:class "has-text-danger has-background-danger-light"}))
-   data])
+;; TODO proper formatting for marked ballot
+(defn colour-candidate-exit [candidate exit-at nth-col elected data marked-ballot]
+  [:span
+   (when (= exit-at (inc nth-col))
+     (if (elected candidate)
+       {:class "has-text-sucess has-background-success-light"}
+       {:class "has-text-danger has-background-danger-light"}))
+
+   (str data (when marked-ballot "•••"))])
 
 (defn count-n-data-row [candidate nth-col counts-data table-data elected]
-  (let [exit-at      (-> candidate table-data :exit)
-        count        (-> (counts-data nth-col) :counts candidate)
-        count-change (-> (counts-data nth-col) :count-changes candidate)]
-    (println exit-at)
-    (println nth-col)
+  (let [exit-at        (-> candidate table-data :exit)
+        count          (-> (counts-data nth-col) :counts candidate)
+        count-change   (-> (counts-data nth-col) :count-changes candidate)
+        count-display  (fn [c b] [colour-candidate-exit candidate exit-at nth-col elected c b])
+        cand-vote-ids  (-> (counts-data nth-col) :piles candidate)
+        target-ballot  @(re-frame/subscribe [::subs/marked-ballot])
+        marked-ballot? (some #{target-ballot} cand-vote-ids)]
     (cond
       (not count)                    [:td ""]
       (or (= nth-col 0)
-          (not (pos? count-change))) [:td [colour-candidate-exit candidate exit-at nth-col elected count]]
-      :else                          [:td [colour-candidate-exit candidate exit-at nth-col elected count]
+          (not (pos? count-change))) [:td [count-display count marked-ballot?]]
+      :else                          [:td [count-display count marked-ballot?]
                                       [:span {:class "has-text-grey"} (str " (+ " count-change ")")]])))
-
 
 (defn vote-counts-data-row [candidate counts-data table-data vote-config candidate-shares seats elected]
   (let [{:keys [position]}                                  (candidate table-data)
@@ -133,8 +134,6 @@
      [:td (str (candidate candidate-shares) " %")]
      (map (fn [n] (count-n-data-row candidate n counts-data table-data elected)) (keys counts-data))]))
 
-
-
 (defn vote-counts-table [{:keys [c-data first-prefs elected]}]
   (let [{:keys [counts seats quota table-data]} c-data
         {:keys [candidates] :as vote-config} @(re-frame/subscribe [::subs/vote-config])
@@ -147,7 +146,6 @@
                                      (int (* 100 (/ (cand first-prefs) total-votes)))))
                             {}
                             candidates)]
-    (println table-data)
     [:table.table
      [vote-counts-header-row count-ns]
      [:tbody

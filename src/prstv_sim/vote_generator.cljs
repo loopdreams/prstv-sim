@@ -1,7 +1,5 @@
 (ns prstv-sim.vote-generator)
 
-
-
 (def same-party-buff 40)
 (def party-popularity-weighting 15)
 

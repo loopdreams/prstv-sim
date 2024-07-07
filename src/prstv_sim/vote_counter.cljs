@@ -62,8 +62,6 @@
 ;; changes the picture at the bottom)
 
 (defn redistribute-surplus? [quota candidate-counts surplus]
-  (println surplus)
-  (println candidate-counts)
   (let [vs (vals candidate-counts)
         plus-surplus (map #(+ % surplus) vs)
         diff-lowest (->> (sort vs)
@@ -78,59 +76,6 @@
   (redistribute-surplus? 10 {:A 3 :B 6 :C 8} 1)
   (redistribute-surplus? 201 {:peter-pan 187, :snow-white 159, :cinderella 158, :micky-mouse 130, :minnie-mouse 143} 13))
 
-
-;; Distribute surplus
-;; Piles
-;; Candidate
-;; Quota
-;; Active-candidates
-;; count-changes
-;; ? first-count
-;;
-;; 1. get candidate votes
-;; 2. get candidate count
-;; 3. calculate candidate surplus (using quota)
-;; 4. if there is surplus to be distributed:
-;; 5. sort the candidate votes by:
-;; a. if first count - sort all votes by next preference
-;;    - take x (surplus) number of votes and move to relevant candidate piles
-;;    - remove the selected votes from candidate pile in piles
-;; b. if subsequent counts - sort recent votes by next preference
-;;    - take x (surplus) number of votes and move to relevant candidate piles
-;;    - remove the selected votes from candidate pile in piles
-;; 6. Return updated piles
-
-
-
-;; Output
-;; Table:
-;;
-;; Count, Cand-A, Cand-B, Cand-N...
-;; 1    ,   x       y       z
-;; 1.1  , elected   +2      +1
-;; 2    , elected   elected eliminated
-;;
-;; Overall data map:
-;; Ballots - will have all ballots organised into piles.
-;;  When ballots are redistributed, they should be moved
-;;  to relevent candidate, or marked as 'non-transferrable'
-;;  if in excess of a surplus
-;;  Ballots will also have a state for each COUNT (every second row of table above)
-;;  :count-1, :count-2, etc.
-;;  The goal of this map is simply to track the physical locations of ballots
-;; Table - will have the data for table above
-;;  Quota
-;;  Seats
-;;  Common to all entries will be:
-;;      - Active Candidates (set of keywords)
-;;      - Elected Candidates (set of keywords)
-;;      - Eliminated Candidate (set of keywords)
-;;  Then, for each row:
-;;   :headers (first row)
-;;   :counts-1 :candidate-counts
-;;   :counts-1-changes :count-changes
-;;   :counts-2 :candidate-counts
-;;   :counts-2-changes :count-changes
 
 ;; Counts
 
@@ -183,9 +128,6 @@
              vs)
      (assoc (keyword (str (name eliminated-candidate) "-non-transferrable")) (:no-preference votes-d))
      (assoc eliminated-candidate []))))
-
-
-
 
 ;; TODO handle when distributable is less than surplus
 (defn surplus-distribute [piles t-votes elected-candidate active-candidates quota count-changes]
