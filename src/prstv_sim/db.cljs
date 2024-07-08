@@ -14,16 +14,16 @@
             :preference-depth "mid"
             :party {1 {:name "Party A"
                        :popularity "23"
-                       :colour "dark blue"}
+                       :colour "Yellow"}
                     2 {:name "Party B"
                        :popularity "21"
-                       :colour "dark green"}
+                       :colour "Red"}
                     3 {:name "Party C"
                        :popularity "18"
-                       :colour "red"}
+                       :colour "Blue"}
                     4 {:name "Independant"
                        :popularity "15"
-                       :colour "default"}}
+                       :colour "Purple"}}
             :candidate {1 {:name "Captain Hook"
                            :popularity "9"
                            :party-id 4}

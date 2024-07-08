@@ -11,24 +11,41 @@
 
 (def preferce-depth-options ["Shallow" "Mid" "Deep"])
 
-(def party-colours-list ["default"
-                         "dark blue"
-                         "light blue"
-                         "dark green"
-                         "light green"
-                         "yellow"
-                         "red"])
 
-(defn get-bulma-style [party-colour]
-  (case party-colour
-    "default" "has-background-text has-text-white"
-    "dark blue" "has-background-link has-text-link-invert"
-    "light blue" "has-background-info has-text-info-invert"
-    "dark green" "has-background-success has-text-success-invert"
-    "light green" "has-background-primary has-text-primary-invert"
-    "yellow" "has-background-warning has-text-warning-invert"
-    "red" "has-background-danger has-text-danger-invert"
-    "red"))
+
+#_(defn get-colour-style [party-colour]
+    (case party-colour
+      "default" "has-background-text has-text-white"
+      "dark blue" "has-background-link has-text-link-invert"
+      "light blue" "has-background-info has-text-info-invert"
+      "dark green" "has-background-success has-text-success-invert"
+      "light green" "has-background-primary has-text-primary-invert"
+      "yellow" "has-background-warning has-text-warning-invert"
+      "red" "has-background-danger has-text-danger-invert"
+      "red"))
+
+(def colour-styles
+  {"Black" "#161925"
+   "Yellow" "#F1D302"
+   "Red" "#C1292E"
+   "Blue" "#235789"
+   "White" "#FDFFFC"
+   "Green" "#8A9546"
+   "Purple" "#72405C"})
+
+
+(def party-colours-list (keys colour-styles))
+
+(defn get-colour-style [key]
+  (let [data {:style {:background-color ""}}
+        data (if (or (= key "Yellow") (= key "White") (= key "Green"))
+               (assoc-in data [:style :color] (colour-styles "Black"))
+               (assoc-in data [:style :color] (colour-styles "White")))]
+    (assoc-in data [:style :background-color] (colour-styles key))))
+
+
+
+
 
 ;; TODO perhaps allow commas in input
 (defn valid-number-of-votes? []
@@ -129,32 +146,34 @@
 
 ;; TODO fix 'available preferences' here - doesn't update properly
 (defn ballot-form-row [cand-name]
-  (let [available-preferences (re-frame/subscribe [::subs/available-preferences])
-        val (-> @(re-frame/subscribe [::subs/my-ballot]) :candidate)]
+  (let [val (or (-> @(re-frame/subscribe [::subs/my-ballot]) (get cand-name)) "Select Preference")
+        available-preferences @(re-frame/subscribe [::subs/available-preferences])
+        available-preferences (if (not= val "Select Preference") (conj available-preferences val) available-preferences)]
     [:div.field.is-horizontal
      [:div.field-label
       [:label.label cand-name]]
      [:div.field-body
       [:div.control
        [:div.select
-        [:select
-         {:value val
-          :on-change #(re-frame/dispatch [::events/update-my-ballot cand-name (-> % .-target .-value)])}
-         [:option "Select Preference"]
-         (map (fn [n] [:option n]) @available-preferences)]]]]]))
+        (into
+         [:select
+          {:value val
+           :on-change #(re-frame/dispatch [::events/update-my-ballot cand-name (-> % .-target .-value)])}]
+         (cons [:option "Select Preference"]
+               (map (fn [p] [:option p]) available-preferences)))]]]]))
 
 (defn user-ballot-form []
   (let [candidates @(re-frame/subscribe [::subs/inputs :candidate])
         my-ballot? @(re-frame/subscribe [::subs/my-ballot?])
-        c-names (->> (vals candidates) (map :name))
-        n-candidates (count c-names)]
+        c-names (->> (vals candidates) (map :name))]
     (if my-ballot?
       [:div.box
        [:h2.title.is-4 "My Ballot"]
-       (map ballot-form-row c-names)]
-      [:button.button {:on-click #(re-frame/dispatch [::events/activate-my-ballot n-candidates])}
-       "Create and Track your own ballot"])))
-
+       (into [:div]
+             (map ballot-form-row c-names))]
+      [:div.box
+       [:button.button {:on-click #(re-frame/dispatch [::events/activate-my-ballot])}
+        "Create and Track your own ballot"]])))
 
 (defn set-vote-params []
   [:div.box
@@ -191,7 +210,7 @@
      (if (and (not (active-party-ids id)) (not editing?))
        [:td [:button.delete {:on-click #(re-frame/dispatch [::events/delete-inputs :party id])}]]
        [:td ""])
-     [:th {:class (get-bulma-style colour)} name]
+     [:th (get-colour-style colour) name]
      [table-popularity-field-display id popularity :party]
      [edit-button id]]))
 
@@ -204,7 +223,7 @@
     [:tr
      [:td [:button.delete {:on-click #(re-frame/dispatch [::events/delete-inputs :candidate id])}]]
      [:th name]
-     [:td {:class (get-bulma-style colour)} p-name]
+     [:td (get-colour-style colour) p-name]
      [table-popularity-field-display id popularity :candidate]
      [edit-button id]]))
 
@@ -239,7 +258,6 @@
    [:div.pt-4
     [:button.button
      {:disabled (not valid)
-      :class "is-primary"
       :on-click #(re-frame/dispatch [::events/add-form form-type form-name (when party-id party-id)])}
      (str "Add " (name form-name) " to table")]]])
 

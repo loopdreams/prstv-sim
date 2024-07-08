@@ -46,10 +46,15 @@
 
 (defn main-panel []
   (let [results @(re-frame/subscribe [::subs/results])]
-    [:div
-     [:div.section {:class "has-background-primary-white"}
-      [:h1 {:class "title has-text-light"}
-       "Single Transferrable Vote Simulator"]]
+    [:div {:style {:background-color (inputs/colour-styles "Purple")}}
+     [:section.hero {:class "has-background-primary-white"}
+      [:div.hero-body {:style {:background-color (inputs/colour-styles "Purple")}}
+       [:p.title {:style {:color (inputs/colour-styles "White")}} "Single Transferrable Vote Simulator"]
+       [:p.subtitle
+        [:a {:href "about.html"
+             :style {:text-decoration "none"
+                     :color (inputs/colour-styles "White")}
+             :target "_blank"} "About"]]]]
      [:div.section
       [inputs/party-input-table]
       [inputs/candidate-input-table]

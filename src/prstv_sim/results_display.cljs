@@ -26,9 +26,9 @@
 
 (defn first-prefs-row-display [data]
   (let [{:keys [name colour votes percent]} data
-        colour-class (inputs/get-bulma-style colour)]
+        colour-display (inputs/get-colour-style colour)]
     [:tr
-     [:th {:class colour-class} (inputs/keyword->name name)]
+     [:th colour-display (inputs/keyword->name name)]
      [:td votes]
      [:td percent]]))
 
@@ -58,8 +58,8 @@
        [:th "Name"]
        [:th "First Preference Votes"]
        [:th "Percentage"]]]
-     [:tbody
-      (map first-prefs-row-display (reverse (sort-by :votes table-data)))]]))
+     (into [:tbody]
+           (map first-prefs-row-display (reverse (sort-by :votes table-data))))]))
 
 
 ;; TODO Add colours
@@ -77,7 +77,7 @@
 (defn elected-candidate-display [candidate {:keys [party-names candidate-party party-colours]}]
   (let [party-id (-> candidate candidate-party)
         party-name (-> party-id party-names)]
-    [:div.box {:class (inputs/get-bulma-style (party-colours party-id))}
+    [:div.box (inputs/get-colour-style (party-colours party-id))
      (str (inputs/keyword->name candidate) " (" party-name ")")]))
 
 (defn elected-display [elected]
@@ -96,7 +96,7 @@
     [:th "Share"]
     (map (fn [n] [:th (str "Count " (inc n))]) count-ns)]])
 
-;; TODO proper formatting for marked ballot
+;; TODO 20210328T000009--kropotkin2021mutual__philosophy_nodate.orgproper formatting for marked ballot
 (defn colour-candidate-exit [candidate exit-at nth-col elected data marked-ballot]
   [:span
    (when (= exit-at (inc nth-col))
@@ -129,7 +129,7 @@
         party-colour                                        (party-colours party-id)]
     [:tr
      [:th (when (some #{position} (range seats)) (inc position))]
-     [:td {:class (inputs/get-bulma-style party-colour)} party-name]
+     [:td (inputs/get-colour-style party-colour) party-name]
      [:td (inputs/keyword->name candidate)]
      [:td (str (candidate candidate-shares) " %")]
      (map (fn [n] (count-n-data-row candidate n counts-data table-data elected)) (keys counts-data))]))
