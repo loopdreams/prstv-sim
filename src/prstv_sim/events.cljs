@@ -65,17 +65,22 @@
 
 (re-frame/reg-event-db
  ::activate-my-ballot
- (fn [db [_ n-candidates]]
-   (-> db
-       (assoc :available-preferences (into #{} (map inc (range n-candidates))))
-       (assoc :my-ballot? true))))
+ (fn [db]
+   (let [n-candidates (count (:candidate (:inputs db)))]
+     (-> db
+         (assoc :available-preferences (into #{} (map inc (range n-candidates))))
+         (assoc :my-ballot? true)))))
+
 
 (re-frame/reg-event-db
  ::update-my-ballot
  (fn [db [_ cand-name preference]]
-   (-> db
-       (assoc-in [:my-ballot cand-name] preference)
-       (update :available-preferences disj (parse-long preference)))))
+   (let [updated-db-ballot  (assoc-in db [:my-ballot cand-name] preference)
+         active-preferences (map parse-long (vals (:my-ballot updated-db-ballot)))
+         n-candidates       (count (:candidate (:inputs db)))
+         available-prefs    (apply (partial disj (into #{} (map inc (range n-candidates)))) active-preferences)]
+     (-> updated-db-ballot
+         (assoc :available-preferences available-prefs)))))
 
 
 (re-frame/reg-event-db
