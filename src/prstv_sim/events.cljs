@@ -8,7 +8,9 @@
 (re-frame/reg-event-db
  ::initialize-db
  (fn-traced [_ _]
-   db/default-db))
+            (assoc
+             db/default-db
+             :inputs db/input-default)))
 
 (re-frame/reg-event-db
  ::update-inputs
