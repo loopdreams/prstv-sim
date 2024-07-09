@@ -1,7 +1,5 @@
 (ns prstv-sim.vote-counter
   (:require [prstv-sim.subs :as subs]
-            [prstv-sim.events :as events]
-            [prstv-sim.inputs :as inputs]
             [reagent.core :as reagent]
             [re-frame.core :as re-frame]
             [prstv-sim.vote-generator :as votes]

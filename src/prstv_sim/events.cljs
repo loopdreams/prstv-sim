@@ -1,6 +1,8 @@
 (ns prstv-sim.events
   (:require
    [re-frame.core :as re-frame]
+   [prstv-sim.vote-counter :as counter]
+   [prstv-sim.vote-generator :as votes]
    [prstv-sim.db :as db]
    [day8.re-frame.tracing :refer-macros [fn-traced]]))
 
@@ -87,10 +89,16 @@
 
 (re-frame/reg-event-db
  ::add-results
- (fn [db [_ elected counts first-prefs counts-data ballot-id]]
-   (-> db
-       (assoc-in [:results :elected] elected)
-       (assoc-in [:results :counts] counts)
-       (assoc-in [:results :first-prefs] first-prefs)
-       (assoc-in [:results :c-data] counts-data)
-       (assoc :marked-ballot ballot-id))))
+ (fn [db [_ vote-config ballot]]
+   (let [ballot-id                           (when (seq ballot) (ffirst ballot))
+         ballots                             (votes/prstv-vote-generator vote-config)
+         seats                               (:n-seats vote-config)
+         candidates                          (:candidates vote-config)
+         [elected counts first-prefs c-data] (counter/run-vote-counts candidates (merge ballots ballot) seats)]
+     (-> db
+         (assoc-in [:results :elected] elected)
+         (assoc-in [:results :counts] counts)
+         (assoc-in [:results :first-prefs] first-prefs)
+         (assoc-in [:results :c-data] c-data)
+         (assoc :marked-ballot ballot-id)
+         (assoc :vote-config vote-config)))))

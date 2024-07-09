@@ -120,11 +120,8 @@
                  (assoc v :candidates remove-candidate)))))))
 
 ;; TODO optimize
-(defn prstv-vote-generator [vote-config]
-  (into {}
-        (for [n (range 1 (inc (:n-votes vote-config)))
-              :let [ballot (mark-ballot vote-config)]]
-          [n ballot])))
+(defn prstv-vote-generator [{:keys [n-votes] :as vote-config}]
+  (reduce #(assoc %1 %2 (mark-ballot vote-config)) {} (range 1 (inc n-votes))))
 
 
 (comment

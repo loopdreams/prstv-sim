@@ -3,8 +3,10 @@
    [re-frame.core :as re-frame]
    [prstv-sim.subs :as subs]
    [prstv-sim.events :as events]
+   [prstv-sim.vote-counter :as counter]
    [clojure.pprint :as p]
-   [clojure.string :as str]))
+   [clojure.string :as str]
+   [prstv-sim.vote-generator :as votes]))
 
 
 (def n-votes-limit 900000)
@@ -212,7 +214,7 @@
        [:td ""])
      [:th (get-colour-style colour) name]
      [table-popularity-field-display id popularity :party]
-     [edit-button id]]))
+     [:td [edit-button id]]]))
 
 
 (defn candidate-row-display [id]
@@ -225,7 +227,7 @@
      [:th name]
      [:td (get-colour-style colour) p-name]
      [table-popularity-field-display id popularity :candidate]
-     [edit-button id]]))
+     [:td [edit-button id]]]))
 
 
 (defn add-entries-form [{:keys [form-type form-name name-val pop-val col-party-name col-party-val select-list party-id valid]}]
@@ -356,10 +358,19 @@
      (str/join " "))))
 
 
+(defn convert-my-ballot [preferences]
+  (let [id (str (random-uuid))
+        ballot (reduce (fn [b [name pref]]
+                         (assoc b (name->keyword name) (parse-long pref)))
+                       {}
+                       preferences)]
+    (zipmap [id] [ballot])))
+
+
 
 
 ;; TODO proper validation here
-(defn inputs->vote-config []
+(defn inputs->vote-config->results []
   (let [{:keys [preference-depth
                 n-votes
                 n-seats
@@ -381,7 +392,7 @@
                               (into {}))
             p-popularity (->> (map (fn [[id {:keys [popularity]}]] [id (when popularity (parse-long popularity))]) party)
                               (into {}))
-            data         {:n-votes              (parse-long n-votes)
+            vote-config  {:n-votes              (parse-long n-votes)
                           :n-seats              (parse-long n-seats)
                           :candidates           c-names
                           :party-names          p-names
@@ -391,7 +402,11 @@
                           :party-popularity     p-popularity
                           :preference-depth     (keyword preference-depth)
                           :volatility           (parse-long volatility)
-                          :volatility-pp        1}]
+                          :volatility-pp        5} ;; TODO set this somewhere else...
+            my-ballot    @(re-frame/subscribe [::subs/my-ballot])
+            ballot       (if my-ballot (convert-my-ballot my-ballot) {})]
         [:button.button
-         {:on-click #(re-frame/dispatch [::events/add-vote-config data])}
-         "Add Vote Config"]))))
+         {:on-click #(re-frame/dispatch [::events/add-results
+                                         vote-config
+                                         ballot])}
+         "Add Vote Config and Calculate Results"]))))
