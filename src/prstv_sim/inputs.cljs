@@ -367,6 +367,13 @@
     (zipmap [id] [ballot])))
 
 
+;; lds-ring
+(defn spinner []
+  [:div#spinner [:div] [:div] [:div] [:div]])
+
+(defn start-spinner []
+  (set! (.getElementById js/document "spinner") -classList "lds-ring")
+  nil)
 
 
 ;; TODO proper validation here
@@ -405,8 +412,11 @@
                           :volatility-pp        5} ;; TODO set this somewhere else...
             my-ballot    @(re-frame/subscribe [::subs/my-ballot])
             ballot       (if my-ballot (convert-my-ballot my-ballot) {})]
-        [:button.button
-         {:on-click #(re-frame/dispatch [::events/add-results
-                                         vote-config
-                                         ballot])}
-         "Add Vote Config and Calculate Results"]))))
+        [:div
+
+         [:button.button
+          {:on-click (fn [_] (let [f (atom (start-spinner))]
+                               (do @f
+                                   (re-frame/dispatch [::events/add-results vote-config ballot]))))}
+          "Add Vote Config and Calculate Results"]
+         (spinner)]))))

@@ -17,5 +17,5 @@
 /.dir-locals.el
 /.lsp/
 
-/resources/public/css
+/resources/public/css/fa-5.15.4-web
 /resources/public/js

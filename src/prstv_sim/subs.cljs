@@ -83,6 +83,8 @@
            :let [[_ {:keys [name]}] p]]
        name))))
 
+
+
 (re-frame/reg-sub
  ::party-id
  (fn [db [_ party-name]]

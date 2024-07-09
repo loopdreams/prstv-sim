@@ -86,19 +86,27 @@
      (-> updated-db-ballot
          (assoc :available-preferences available-prefs)))))
 
+(re-frame/reg-fx
+ :spinner-stop
+ (fn [_]
+   (.remove (.-classList (.getElementById js/document "spinner")) "lds-ring")))
 
-(re-frame/reg-event-db
+
+(re-frame/reg-event-fx
  ::add-results
- (fn [db [_ vote-config ballot]]
+ (fn [{:keys [db]} [_ vote-config ballot]]
+   (do
+     (set! (.getElementById js/document "spinner") -classList "lds-ring"))
    (let [ballot-id                           (when (seq ballot) (ffirst ballot))
          ballots                             (votes/prstv-vote-generator vote-config)
          seats                               (:n-seats vote-config)
          candidates                          (:candidates vote-config)
          [elected counts first-prefs c-data] (counter/run-vote-counts candidates (merge ballots ballot) seats)]
-     (-> db
-         (assoc-in [:results :elected] elected)
-         (assoc-in [:results :counts] counts)
-         (assoc-in [:results :first-prefs] first-prefs)
-         (assoc-in [:results :c-data] c-data)
-         (assoc :marked-ballot ballot-id)
-         (assoc :vote-config vote-config)))))
+     {:spinner-stop true
+      :db (-> db
+              (assoc-in [:results :elected] elected)
+              (assoc-in [:results :counts] counts)
+              (assoc-in [:results :first-prefs] first-prefs)
+              (assoc-in [:results :c-data] c-data)
+              (assoc :marked-ballot ballot-id)
+              (assoc :vote-config vote-config))})))
