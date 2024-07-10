@@ -1,4 +1,6 @@
-(ns prstv-sim.vote-generator)
+(ns prstv-sim.vote-generator
+  (:require
+    [re-frame.core :as re-frame]))
 
 (def same-party-buff 40)
 (def party-popularity-weighting 15)

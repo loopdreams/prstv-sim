@@ -3,6 +3,7 @@
    [re-frame.core :as re-frame]
    [prstv-sim.vote-counter :as counter]
    [prstv-sim.vote-generator :as votes]
+   [prstv-sim.sample-configs :as v-configs]
    [prstv-sim.db :as db]
    [day8.re-frame.tracing :refer-macros [fn-traced]]))
 
@@ -12,12 +13,17 @@
  (fn-traced [_ _]
             (assoc
              db/default-db
-             :inputs db/input-default)))
+             :inputs v-configs/input-default)))
 
 (re-frame/reg-event-db
  ::update-inputs
  (fn [db [_ k val]]
    (assoc-in db [:inputs k] val)))
+
+(re-frame/reg-event-db
+ ::load-input-config
+ (fn [db [_ data]]
+   (assoc db :inputs data)))
 
 (re-frame/reg-event-db
  ::delete-inputs
@@ -89,14 +95,32 @@
 (re-frame/reg-fx
  :spinner-stop
  (fn [_]
+   (println "Stopping spinner")
    (.remove (.-classList (.getElementById js/document "spinner")) "lds-ring")))
+
+;; (re-frame/reg-fx
+;;  ::spinner-stop
+;;  (fn [db]
+;;    (assoc db :spinner false)))
+
+
+(re-frame/reg-fx
+ :spin-start
+ (fn [_]
+   (do
+     (println "Starting spinner")
+     (set! (.getElementById js/document "spinner") -classList "lds-ring"))))
+
+(re-frame/reg-event-fx
+ ::spinner-start
+ (fn [{:keys [db]} _]
+   {:spin-start true
+    :db db}))
 
 
 (re-frame/reg-event-fx
  ::add-results
  (fn [{:keys [db]} [_ vote-config ballot]]
-   (do
-     (set! (.getElementById js/document "spinner") -classList "lds-ring"))
    (let [ballot-id                           (when (seq ballot) (ffirst ballot))
          ballots                             (votes/prstv-vote-generator vote-config)
          seats                               (:n-seats vote-config)

@@ -4,6 +4,7 @@
    [prstv-sim.subs :as subs]
    [prstv-sim.events :as events]
    [prstv-sim.vote-counter :as counter]
+   [prstv-sim.sample-configs :as v-configs]
    [clojure.pprint :as p]
    [clojure.string :as str]
    [prstv-sim.vote-generator :as votes]))
@@ -164,6 +165,7 @@
          (cons [:option "Select Preference"]
                (map (fn [p] [:option p]) available-preferences)))]]]]))
 
+;; TODO remove the need for 'activation' here
 (defn user-ballot-form []
   (let [candidates @(re-frame/subscribe [::subs/inputs :candidate])
         my-ballot? @(re-frame/subscribe [::subs/my-ballot?])
@@ -184,9 +186,6 @@
    [set-number-of-seats]
    [set-preference-depth]
    [set-volatility]])
-
-
-
 
 ;; Parties & Candidates
 
@@ -339,6 +338,20 @@
           [:tbody
            (map candidate-row-display row-ids)]])]]]))
 
+(defn preconfig-selector-button [[_ {:keys [name values]}]]
+  [:button.button.is-link.is-outlined
+   {:on-click #(re-frame/dispatch [::events/load-input-config values])}
+   name])
+
+(defn preconfig-options-selector []
+  [:div
+   [:h2.subtitle "Configuration Profiles"]
+   (conj
+    (into [:div]
+          (map preconfig-selector-button v-configs/sample-config-options-list))
+    [preconfig-selector-button [nil {:name "Clear All" :values nil}]])])
+
+
 
 
 ;; Convert Inputs to Vote Map
@@ -371,9 +384,9 @@
 (defn spinner []
   [:div#spinner [:div] [:div] [:div] [:div]])
 
-(defn start-spinner []
-  (set! (.getElementById js/document "spinner") -classList "lds-ring")
-  nil)
+;; (defn start-spinner []
+;;   (set! (.getElementById js/document "spinner") -classList "lds-ring")
+;;   nil)
 
 
 ;; TODO proper validation here
@@ -413,10 +426,9 @@
             my-ballot    @(re-frame/subscribe [::subs/my-ballot])
             ballot       (if my-ballot (convert-my-ballot my-ballot) {})]
         [:div
-
+         (spinner)
          [:button.button
-          {:on-click (fn [_] (let [f (atom (start-spinner))]
-                               (do @f
-                                   (re-frame/dispatch [::events/add-results vote-config ballot]))))}
-          "Add Vote Config and Calculate Results"]
-         (spinner)]))))
+          {:on-click #(do
+                        (re-frame/dispatch [::events/spinner-start])
+                        (re-frame/dispatch [::events/add-results vote-config ballot]))}
+          "Add Vote Config and Calculate Results"]]))))

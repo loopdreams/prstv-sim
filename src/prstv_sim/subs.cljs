@@ -107,3 +107,8 @@
  ::results
  (fn [db]
    (:results db)))
+
+(re-frame/reg-sub
+ ::spinner
+ (fn [db]
+   (:spinner db)))
