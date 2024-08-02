@@ -429,18 +429,16 @@
           {:on-click #(re-frame/dispatch [::events/add-vote-config vote-config])}
           "Add Vote Config"]]))))
 
-;; TODO on click, re-generate
-;; - refactor dispatch as fx
-;; - Then, results view 'subscribes' to results data? Or, as reagent component that is re-mounted when this is clicked
 (defn generate-results []
-  (let [vote-config @(re-frame/subscribe [::subs/vote-config])
-        my-ballot   @(re-frame/subscribe [::subs/my-ballot])
-        my-ballot   (if my-ballot (convert-my-ballot my-ballot) {})
-        ballot-id   (when (seq my-ballot) (ffirst my-ballot))
-        seats       (:n-seats vote-config)
-        candidates  (:candidates vote-config)]
+  (let [vote-config      @(re-frame/subscribe [::subs/vote-config])
+        my-ballot        @(re-frame/subscribe [::subs/my-ballot])
+        results-loading? @(re-frame/subscribe [::subs/results-loading?])
+        my-ballot        (if my-ballot (convert-my-ballot my-ballot) {})
+        ballot-id        (when (seq my-ballot) (ffirst my-ballot))
+        seats            (:n-seats vote-config)
+        candidates       (:candidates vote-config)]
     [:div
      [:button.button
       {:on-click #(re-frame/dispatch [::events/process-results vote-config candidates my-ballot ballot-id seats])
-       :disabled (not vote-config)}
+       :disabled (or (not vote-config) (= results-loading? :loading))}
       "Generate Results"]]))
