@@ -84,8 +84,31 @@
                          :popularity "15"
                          :party-id   1}}})
 
+(def highly-random
+  {:n-votes "1000"
+   :n-seats "3"
+   :volatility "90"
+   :preference-depth :mid
+   :party {1 {:name "NoParty"
+              :colour "Purple"}}
+   :candidate {1 {:name "Candidate A" :party-id 1}
+               2 {:name "Candidate B" :party-id 1}
+               3 {:name "Candidate C" :party-id 1}
+               4 {:name "Candidate D" :party-id 1}
+               5 {:name "Candidate E" :party-id 1}
+               6 {:name "Candidate F" :party-id 1}
+               7 {:name "Candidate G" :party-id 1}
+               8 {:name "Candidate H" :party-id 1}
+               9 {:name "Candidate I" :party-id 1}
+               10 {:name "Candidate J" :party-id 1}
+               11 {:name "Candidate K" :party-id 1}
+               12 {:name "Candidate L" :party-id 1}}})
+
+
 (def sample-config-options-list
-  {:input-default {:values input-default
-                   :name "Default"}
+  {:input-default    {:values input-default
+                      :name   "Default"}
    :input-scenario-a {:values input-senario-a
-                      :name "Highly Popular Candidate"}})
+                      :name   "Highly Popular Candidate"}
+   :highly-random    {:values highly-random
+                      :name "Highly Random"}})
