@@ -11,6 +11,7 @@
 
 (defn inputs-panel []
   [:div
+   [inputs/inputs->vote-config]
    [inputs/party-input-table]
    [inputs/candidate-input-table]
    [inputs/set-vote-params]
@@ -29,7 +30,7 @@
 (defn results-panel []
   (let [results @(re-frame/subscribe [::subs/results])]
     [:div
-     [inputs/inputs->vote-config->results]
+     [inputs/generate-results]
      (when results
        (let [canidate-first-prefs (:first-prefs results)
              elected              (:elected results)
@@ -41,6 +42,25 @@
           [results/party-first-prefs-table canidate-first-prefs]
           [:h2 [:span.has-text-weight-bold "Quota: "] quota]
           [results/vote-counts-table results]]))]))
+
+
+(defn spinner []
+  [:div#spinner.lds-ring [:div] [:div] [:div] [:div]])
+
+(defn results-display []
+  [:div
+   [inputs/generate-results]
+   (let [loading? @(re-frame/subscribe [::subs/results-loading?])]
+     (case loading?
+       :loading [:div.box [spinner]]
+       :done (let [{:keys [first-prefs elected c-data] :as results} @(re-frame/subscribe [::subs/results])]
+               [:div.box
+                [results/elected-display elected]
+                [results/party-first-prefs-table first-prefs]
+                [:h2 [:span.has-text-weight-bold "Quota: "] (:quota c-data)]
+                [results/vote-counts-table results]])
+       [:div]))])
+
 
 
 ;; pattern taken from this useful guide - https://medium.com/@kirill.ishanov/using-containers-with-reagent-and-re-frame-ba88c481335d
@@ -73,7 +93,7 @@
           :component [inputs/user-ballot-form]}
          {:key :results
           :label "Results"
-          :component [results-panel]}
+          :component [results-display]}
          {:key :about
           :label "About"
           :component [:div "About Page"]})])

@@ -64,11 +64,6 @@
          (dissoc form)))))
 
 (re-frame/reg-event-db
- ::add-vote-config
- (fn [db [_ config]]
-   (assoc db :vote-config config)))
-
-(re-frame/reg-event-db
  ::save-votes
  (fn [db [_ votes]]
    (assoc db :total-votes votes)))
@@ -92,45 +87,28 @@
      (-> updated-db-ballot
          (assoc :available-preferences available-prefs)))))
 
-(re-frame/reg-fx
- :spinner-stop
- (fn [_]
-   (println "Stopping spinner")
-   (.remove (.-classList (.getElementById js/document "spinner")) "lds-ring")))
 
-;; (re-frame/reg-fx
-;;  ::spinner-stop
-;;  (fn [db]
-;;    (assoc db :spinner false)))
+(re-frame/reg-event-db
+ ::add-vote-config
+ (fn [db [_ config]]
+   (assoc db :vote-config config)))
 
 
-(re-frame/reg-fx
- :spin-start
- (fn [_]
-   (do
-     (println "Starting spinner")
-     (set! (.getElementById js/document "spinner") -classList "lds-ring"))))
-
-(re-frame/reg-event-fx
- ::spinner-start
- (fn [{:keys [db]} _]
-   {:spin-start true
-    :db db}))
-
+(re-frame/reg-event-db
+ ::calculate-results
+ (fn [db [_ vote-config candidates my-ballot ballot-id seats]]
+   (let [ballots (votes/prstv-vote-generator vote-config)
+         [elected counts first-prefs c-data] (counter/run-vote-counts candidates (merge ballots my-ballot) seats)]
+     (-> db
+         (assoc-in [:results :elected] elected)
+         (assoc-in [:results :counts] counts)
+         (assoc-in [:results :first-prefs] first-prefs)
+         (assoc-in [:results :c-data] c-data)
+         (assoc :marked-ballot ballot-id)
+         (assoc :processing-results :done)))))
 
 (re-frame/reg-event-fx
- ::add-results
- (fn [{:keys [db]} [_ vote-config ballot]]
-   (let [ballot-id                           (when (seq ballot) (ffirst ballot))
-         ballots                             (votes/prstv-vote-generator vote-config)
-         seats                               (:n-seats vote-config)
-         candidates                          (:candidates vote-config)
-         [elected counts first-prefs c-data] (counter/run-vote-counts candidates (merge ballots ballot) seats)]
-     {:spinner-stop true
-      :db (-> db
-              (assoc-in [:results :elected] elected)
-              (assoc-in [:results :counts] counts)
-              (assoc-in [:results :first-prefs] first-prefs)
-              (assoc-in [:results :c-data] c-data)
-              (assoc :marked-ballot ballot-id)
-              (assoc :vote-config vote-config))})))
+ ::process-results
+ (fn [{db :db} [_ vote-config candidates my-ballot ballot-id seats]]
+   {:dispatch ^:flush-dom [::calculate-results vote-config candidates my-ballot ballot-id seats]
+    :db (assoc db :processing-results :loading)}))

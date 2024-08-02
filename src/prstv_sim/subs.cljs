@@ -61,6 +61,11 @@
    (:marked-ballot db)))
 
 (re-frame/reg-sub
+ ::results-loading?
+ (fn [db]
+   (:processing-results db)))
+
+(re-frame/reg-sub
  ::my-ballot?
  (fn [db]
    (:my-ballot? db)))

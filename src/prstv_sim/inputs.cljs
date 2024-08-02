@@ -28,12 +28,12 @@
       "red"))
 
 (def colour-styles
-  {"Black" "#161925"
+  {"Black"  "#161925"
    "Yellow" "#F1D302"
-   "Red" "#C1292E"
-   "Blue" "#235789"
-   "White" "#FDFFFC"
-   "Green" "#8A9546"
+   "Red"    "#C1292E"
+   "Blue"   "#235789"
+   "White"  "#FDFFFC"
+   "Green"  "#8A9546"
    "Purple" "#72405C"})
 
 
@@ -45,9 +45,6 @@
                (assoc-in data [:style :color] (colour-styles "Black"))
                (assoc-in data [:style :color] (colour-styles "White")))]
     (assoc-in data [:style :background-color] (colour-styles key))))
-
-
-
 
 
 ;; TODO perhaps allow commas in input
@@ -108,6 +105,7 @@
          [:div.has-text-danger
           "Number of seats has to be a number greater than 0 and less than the total number of candidates."])]]]))
 
+;; TODO set default radio setting
 (defn set-preference-depth []
   [:div.field.is-horizontal
    [:div.field-label
@@ -390,7 +388,8 @@
 
 
 ;; TODO proper validation here
-(defn inputs->vote-config->results []
+;; TODO User feedback when config is added successfully
+(defn inputs->vote-config []
   (let [{:keys [preference-depth
                 n-votes
                 n-seats
@@ -422,13 +421,26 @@
                           :party-popularity     p-popularity
                           :preference-depth     (keyword preference-depth)
                           :volatility           (parse-long volatility)
-                          :volatility-pp        5} ;; TODO set this somewhere else...
-            my-ballot    @(re-frame/subscribe [::subs/my-ballot])
-            ballot       (if my-ballot (convert-my-ballot my-ballot) {})]
+                          :volatility-pp        5}] ;; TODO set this somewhere else...
+
         [:div
-         (spinner)
+         ;; (spinner)
          [:button.button
-          {:on-click #(do
-                        (re-frame/dispatch [::events/spinner-start])
-                        (re-frame/dispatch [::events/add-results vote-config ballot]))}
-          "Add Vote Config and Calculate Results"]]))))
+          {:on-click #(re-frame/dispatch [::events/add-vote-config vote-config])}
+          "Add Vote Config"]]))))
+
+;; TODO on click, re-generate
+;; - refactor dispatch as fx
+;; - Then, results view 'subscribes' to results data? Or, as reagent component that is re-mounted when this is clicked
+(defn generate-results []
+  (let [vote-config @(re-frame/subscribe [::subs/vote-config])
+        my-ballot   @(re-frame/subscribe [::subs/my-ballot])
+        my-ballot   (if my-ballot (convert-my-ballot my-ballot) {})
+        ballot-id   (when (seq my-ballot) (ffirst my-ballot))
+        seats       (:n-seats vote-config)
+        candidates  (:candidates vote-config)]
+    [:div
+     [:button.button
+      {:on-click #(re-frame/dispatch [::events/process-results vote-config candidates my-ballot ballot-id seats])
+       :disabled (not vote-config)}
+      "Generate Results"]]))
