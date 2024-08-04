@@ -3,27 +3,14 @@
    [re-frame.core :as re-frame]
    [prstv-sim.subs :as subs]
    [prstv-sim.events :as events]
-   [prstv-sim.vote-counter :as counter]
    [prstv-sim.sample-configs :as v-configs]
    [clojure.pprint :as p]
-   [clojure.string :as str]
-   [prstv-sim.vote-generator :as votes]))
+   [clojure.string :as str]))
 
 
 (def n-votes-limit 900000)
 
 (def preferce-depth-options ["Shallow" "Mid" "Deep"])
-
-#_(defn get-colour-style [party-colour]
-    (case party-colour
-      "default" "has-background-text has-text-white"
-      "dark blue" "has-background-link has-text-link-invert"
-      "light blue" "has-background-info has-text-info-invert"
-      "dark green" "has-background-success has-text-success-invert"
-      "light green" "has-background-primary has-text-primary-invert"
-      "yellow" "has-background-warning has-text-warning-invert"
-      "red" "has-background-danger has-text-danger-invert"
-      "red"))
 
 (def colour-styles
   {"Black"  "#161925"
@@ -66,7 +53,6 @@
 (defn hoverable-info-icon [info-text]
   [:span.icon
    [:i {:class "fas fa-info-circle" :data-tooltip info-text}]])
-
 
 
 (defn set-number-of-votes []
@@ -376,14 +362,6 @@
     (zipmap [id] [ballot])))
 
 
-;; lds-ring
-(defn spinner []
-  [:div#spinner [:div] [:div] [:div] [:div]])
-
-;; (defn start-spinner []
-;;   (set! (.getElementById js/document "spinner") -classList "lds-ring")
-;;   nil)
-
 
 ;; TODO proper validation here
 ;; TODO User feedback when config is added successfully
@@ -422,7 +400,6 @@
                           :volatility-pp        5}] ;; TODO set this somewhere else...
 
         [:div
-         ;; (spinner)
          [:button.button
           {:on-click #(re-frame/dispatch [::events/add-vote-config vote-config])}
           "Add Vote Config"]]))))

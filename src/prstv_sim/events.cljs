@@ -64,18 +64,12 @@
          (dissoc form)))))
 
 (re-frame/reg-event-db
- ::save-votes
- (fn [db [_ votes]]
-   (assoc db :total-votes votes)))
-
-(re-frame/reg-event-db
  ::activate-my-ballot
  (fn [db]
    (let [n-candidates (count (:candidate (:inputs db)))]
      (-> db
          (assoc :available-preferences (into #{} (map inc (range n-candidates))))
          (assoc :my-ballot? true)))))
-
 
 (re-frame/reg-event-db
  ::update-my-ballot
@@ -87,7 +81,6 @@
      (-> updated-db-ballot
          (assoc :available-preferences available-prefs)))))
 
-
 (re-frame/reg-event-db
  ::add-vote-config
  (fn [db [_ config]]
@@ -95,7 +88,6 @@
        (assoc :vote-config config)
        (assoc :results nil)
        (assoc :processing-results nil))))
-
 
 (re-frame/reg-event-db
  ::calculate-results

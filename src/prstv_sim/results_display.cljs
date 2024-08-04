@@ -6,24 +6,6 @@
             [clojure.set :as set]))
 
 
-#_(defn first-prefs-chart-data [counts]
-    (let [data (reduce (fn [data candidate]
-                         (conj data
-                               (-> {}
-                                   (assoc :candidate candidate)
-                                   (assoc :votes (candidate counts)))))
-                       []
-                       (keys counts))]
-      {:$schema "https://vega.github.io/schema/vega-lite/v5.json"
-       :data {:values data}
-       :mark {:type :bar}
-       :width 500
-       :encoding {:x {:field :candidate
-                      :type :nominal}
-                  :y {:field :votes
-                      :type :quantitative}}}))
-
-
 (defn first-prefs-row-display [data]
   (let [{:keys [name colour votes percent]} data
         colour-display (inputs/get-colour-style colour)]
@@ -135,7 +117,7 @@
      (map (fn [n] (count-n-data-row candidate n counts-data table-data elected)) (keys counts-data))]))
 
 (defn vote-counts-table [{:keys [c-data first-prefs elected]}]
-  (let [{:keys [counts seats quota table-data]} c-data
+  (let [{:keys [counts seats table-data]} c-data
         {:keys [candidates] :as vote-config} @(re-frame/subscribe [::subs/vote-config])
         count-ns (-> counts keys sort)
         candidate-order (keys (sort-by #(get-in (val %) [:position]) table-data))

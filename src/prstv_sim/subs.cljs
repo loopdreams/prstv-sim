@@ -88,8 +88,6 @@
            :let [[_ {:keys [name]}] p]]
        name))))
 
-
-
 (re-frame/reg-sub
  ::party-id
  (fn [db [_ party-name]]
@@ -98,22 +96,3 @@
                       (for [[k {:keys [name]}] parties :when (= name party-name)] k))
          ffirst))))
 
-(re-frame/reg-sub
- ::total-votes
- (fn [db]
-   (:total-votes db)))
-
-(re-frame/reg-sub
- ::chart-data
- (fn [db]
-   (:chart-data db)))
-
-(re-frame/reg-sub
- ::results
- (fn [db]
-   (:results db)))
-
-(re-frame/reg-sub
- ::spinner
- (fn [db]
-   (:spinner db)))
