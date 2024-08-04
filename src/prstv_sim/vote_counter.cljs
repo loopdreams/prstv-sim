@@ -192,6 +192,11 @@
                      (assoc-in [:table-data c :exit] count-n))
                  (if (= status :elected) (rest ps) (drop-last ps)))))))
 
+(defn lowest-candidate [piles candidates]
+  (let [counts (select-keys (vote-counts piles) candidates)]
+    (->
+     (sort-candidate-positions counts candidates)
+     last)))
 
 
 ;; TODO rename inner 'counts' key (since there is also an outer 'counts' key)
@@ -214,10 +219,7 @@
                             (assoc-in [:counts 0] {:piles piles :counts first-pref-votes}))]
       (cond
         (= (count elected) number-of-seats) [elected
-                                             (vote-counts p)
-                                             first-pref-votes
                                              (-> count-states
-
                                                  (assign-candidate-position
                                                   positions
                                                   active
@@ -225,75 +227,81 @@
                                                   count-n
                                                   :eliminated))]
         (= (count active) (- number-of-seats (count elected))) [(into elected active)
-                                                                (vote-counts p)
-                                                                first-pref-votes
                                                                 (-> count-states
-
                                                                     (assign-candidate-position
                                                                      positions
                                                                      active
                                                                      (select-keys (vote-counts p) active)
                                                                      count-n
                                                                      :elected))]
-        :else (let [counts        (select-keys (vote-counts p) active)
-                    elec          (filter #(>= (or (% counts) 0) quota) active)
-                    surpluses     (reduce #(assoc %1 %2 (- (%2 counts) quota)) {} elec)
-                    total-surplus (reduce + (vals surpluses))
-                    counts-for-surplus-calc (select-keys counts (apply (partial disj active) elec))]
-                (if (and (seq elec) (redistribute-surplus? quota counts-for-surplus-calc total-surplus))
-                  (let [active     (apply (partial disj active) elec)
-                        new-piles  (reduce (fn [p elected]
-                                             (surplus-distribute p t-votes elected active quota cnt-changes))
-                                           p elec)
-                        new-counts (select-keys (vote-counts new-piles) active)
-                        c-changes  (count-changes counts new-counts)]
-                    (recur new-piles
-                           c-changes
-                           (into elected elec)
-                           eliminated
-                           active
-                           (inc count-n)
-                           (drop (count elec) positions)
-                           (-> count-states
-                               (assoc-in [:counts count-n]
-                                         {:piles         new-piles
-                                          :count-changes c-changes
-                                          :elected       (into elected elec)
-                                          :surpluses     surpluses
-                                          :eliminated    eliminated
-                                          :active        active
-                                          :counts        new-counts})
-                               (assign-candidate-position positions elec counts count-n :elected))))
-                  (let [elim       (get-counts-eliminated counts)
-                        active     (apply (partial disj active) elim)
-                        active     (if (seq elec) (apply (partial disj active) elec)
-                                       active)
-                        new-piles  (reduce (fn [p el]
-                                             (elimination-distribute p t-votes el active))
-                                           p elim)
-                        new-counts (select-keys (vote-counts new-piles) active)
-                        c-changes  (count-changes counts new-counts)]
-                    (recur new-piles c-changes
-                           (if (seq elec) (into elected elec) elected)
-                           (into eliminated elim)
-                           active
-                           (inc count-n)
-                           (if (seq elec)
-                             (->> (drop (count elec) positions)
-                                  reverse
-                                  (drop (count elim))
-                                  reverse)
-                             (-> (drop (count elim) (reverse positions)) reverse))
-                           (-> count-states
-                               (assoc-in [:counts count-n]
-                                         {:piles         new-piles
-                                          :count-changes c-changes
-                                          :elected       (into elected elec)
-                                          :eliminated    (into eliminated elim)
-                                          :active        active
-                                          :counts        new-counts})
-                               (assign-candidate-position positions elim counts count-n :eliminated)
-                               (assign-candidate-position positions elec counts count-n :elected))))))))))
+       :else (let [counts        (select-keys (vote-counts p) active)
+                   elec          (filter #(>= (or (% counts) 0) quota) active)
+                   surpluses     (reduce #(assoc %1 %2 (- (%2 counts) quota)) {} elec)
+                   total-surplus (reduce + (vals surpluses))
+                   counts-for-surplus-calc (select-keys counts (apply (partial disj active) elec))]
+               (if (and (seq elec) (redistribute-surplus? quota counts-for-surplus-calc total-surplus))
+                 (let [active     (apply (partial disj active) elec)
+                       new-piles  (reduce (fn [p elected]
+                                            (surplus-distribute p t-votes elected active quota cnt-changes))
+                                          p elec)
+                       new-counts (select-keys (vote-counts new-piles) active)
+                       c-changes  (count-changes counts new-counts)]
+                   (recur new-piles
+                          c-changes
+                          (into elected elec)
+                          eliminated
+                          active
+                          (inc count-n)
+                          (drop (count elec) positions)
+                          (-> count-states
+                              (assoc-in [:counts count-n]
+                                        {:piles         new-piles
+                                         :count-changes c-changes
+                                         :elected       (into elected elec)
+                                         :surpluses     surpluses
+                                         :eliminated    eliminated
+                                         :active        active
+                                         :counts        new-counts})
+                              (assign-candidate-position positions elec counts count-n :elected))))
+                 (if (= (- (count active) 1) (- number-of-seats (count elected)))
+                   ;; No need to redistribute eliminated votes in this case
+                   ;; TODO handle when there are 2+ candidates at bottom
+                   (let [eliminated-candidate (lowest-candidate p active)
+                         elec (disj active eliminated-candidate)]
+                     [(into elected elec)
+                      (-> count-states
+                          (assign-candidate-position positions elec (select-keys (vote-counts p) elec) count-n :elected)
+                          (assign-candidate-position positions #{eliminated-candidate} (select-keys (vote-counts p) #{eliminated-candidate}) count-n :eliminated))])
+                   (let [elim       (get-counts-eliminated counts)
+                         active     (apply (partial disj active) elim)
+                         active     (if (seq elec) (apply (partial disj active) elec)
+                                        active)
+                         new-piles  (reduce (fn [p el]
+                                              (elimination-distribute p t-votes el active))
+                                            p elim)
+                         new-counts (select-keys (vote-counts new-piles) active)
+                         c-changes  (count-changes counts new-counts)]
+                     (recur new-piles c-changes
+                            (if (seq elec) (into elected elec) elected)
+                            (into eliminated elim)
+                            active
+                            (inc count-n)
+                            (if (seq elec)
+                              (->> (drop (count elec) positions)
+                                   reverse
+                                   (drop (count elim))
+                                   reverse)
+                              (-> (drop (count elim) (reverse positions)) reverse))
+                            (-> count-states
+                                (assoc-in [:counts count-n]
+                                          {:piles         new-piles
+                                           :count-changes c-changes
+                                           :elected       (into elected elec)
+                                           :eliminated    (into eliminated elim)
+                                           :active        active
+                                           :counts        new-counts})
+                                (assign-candidate-position positions elim counts count-n :eliminated)
+                              (assign-candidate-position positions elec counts count-n :elected)))))))))))
 
 
 (comment

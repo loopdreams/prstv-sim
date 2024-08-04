@@ -95,10 +95,11 @@
  ::calculate-results
  (fn [db [_ vote-config candidates my-ballot ballot-id seats]]
    (let [ballots (votes/prstv-vote-generator vote-config)
-         [elected counts first-prefs c-data] (counter/run-vote-counts candidates (merge ballots my-ballot) seats)]
+         [elected c-data] (counter/run-vote-counts candidates (merge ballots my-ballot) seats)
+         first-prefs (:counts ((:counts c-data) 0))]
+     (println c-data)
      (-> db
          (assoc-in [:results :elected] elected)
-         (assoc-in [:results :counts] counts)
          (assoc-in [:results :first-prefs] first-prefs)
          (assoc-in [:results :c-data] c-data)
          (assoc :marked-ballot ballot-id)
