@@ -87,7 +87,9 @@
    (-> db
        (assoc :vote-config config)
        (assoc :results nil)
-       (assoc :processing-results nil))))
+       (assoc :processing-results nil)
+       (assoc :my-ballot? nil)
+       (assoc :my-ballot nil))))
 
 (re-frame/reg-event-db
  ::calculate-results
