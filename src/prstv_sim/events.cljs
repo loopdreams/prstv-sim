@@ -91,7 +91,10 @@
 (re-frame/reg-event-db
  ::add-vote-config
  (fn [db [_ config]]
-   (assoc db :vote-config config)))
+   (-> db
+       (assoc :vote-config config)
+       (assoc :results nil)
+       (assoc :processing-results nil))))
 
 
 (re-frame/reg-event-db

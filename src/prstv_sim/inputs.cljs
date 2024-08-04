@@ -14,8 +14,6 @@
 
 (def preferce-depth-options ["Shallow" "Mid" "Deep"])
 
-
-
 #_(defn get-colour-style [party-colour]
     (case party-colour
       "default" "has-background-text has-text-white"
@@ -429,7 +427,7 @@
           {:on-click #(re-frame/dispatch [::events/add-vote-config vote-config])}
           "Add Vote Config"]]))))
 
-(defn generate-results []
+(defn generate-results-button []
   (let [vote-config      @(re-frame/subscribe [::subs/vote-config])
         my-ballot        @(re-frame/subscribe [::subs/my-ballot])
         results-loading? @(re-frame/subscribe [::subs/results-loading?])
