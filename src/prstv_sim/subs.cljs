@@ -96,3 +96,8 @@
                       (for [[k {:keys [name]}] parties :when (= name party-name)] k))
          ffirst))))
 
+(re-frame/reg-sub
+ ::results
+ (fn [db]
+   (:results db)))
+
