@@ -2,9 +2,12 @@
   (:require
    [re-frame.core :as re-frame]
    [prstv-sim.subs :as subs]
+   [prstv-sim.graphs :as graphs]
    [prstv-sim.inputs :as inputs]
    [prstv-sim.results-display :as results]
    [reagent.core :as reagent]))
+
+
 
 (defn inputs-panel []
   [:div
@@ -21,6 +24,7 @@
 (defn results-display []
   [:div
    [inputs/generate-results-button]
+   [graphs/chart-candidates]
    (let [loading? @(re-frame/subscribe [::subs/results-loading?])]
      (case loading?
        :loading [:div.box [spinner]]

@@ -97,7 +97,6 @@
    (let [ballots (votes/prstv-vote-generator vote-config)
          [elected c-data] (counter/run-vote-counts candidates (merge ballots my-ballot) seats)
          first-prefs (:counts ((:counts c-data) 0))]
-     (println c-data)
      (-> db
          (assoc-in [:results :elected] elected)
          (assoc-in [:results :first-prefs] first-prefs)
@@ -110,3 +109,4 @@
  (fn [{db :db} [_ vote-config candidates my-ballot ballot-id seats]]
    {:dispatch ^:flush-dom [::calculate-results vote-config candidates my-ballot ballot-id seats]
     :db (assoc db :processing-results :loading)}))
+

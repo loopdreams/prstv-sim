@@ -183,7 +183,7 @@
                           :size 5
                           :type "text" :placeholder popularity
                           :on-change #(re-frame/dispatch [::events/update-popularity-input key id (-> % .-target .-value)])}]]
-      [:td (str popularity "%  ")])))
+      [:td (if popularity (str popularity "%  ") "")])))
 
 
 (defn party-row-display [id active-party-ids]

@@ -78,7 +78,7 @@
     [:th "Share"]
     (map (fn [n] [:th (str "Count " (inc n))]) count-ns)]])
 
-;; TODO 20210328T000009--kropotkin2021mutual__philosophy_nodate.orgproper formatting for marked ballot
+;; TODO proper formatting for marked ballot
 (defn colour-candidate-exit [candidate exit-at nth-col elected data marked-ballot]
   [:span
    (when (= exit-at (inc nth-col))
