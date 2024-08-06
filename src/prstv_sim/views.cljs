@@ -72,7 +72,7 @@
           :label "About"
           :component [:div "About Page"]})])
 
-(defn header-component []
+(defn header-panel []
   [:section.hero {:class "has-background-primary-white"}
     [:div.hero-body {:style {:background-color (inputs/colour-styles "Purple")}}
      [:p.title {:style {:color (inputs/colour-styles "White")}} "Single Transferrable Vote Simulator"]
@@ -81,5 +81,5 @@
 ;; TODO separate out header section
 (defn main-panel []
   [:div {:style {:background-color (inputs/colour-styles "Purple")}}
-   [header-component]
+   [header-panel]
    [tab-pages]])

@@ -6,10 +6,13 @@
             [clojure.set :as set]))
 
 
+;; TODO Proper styling
+;; TODO Add 'quota' line
 (defn graph-spec-candidates [vals]
   {:$schema "https://vega.github.io/schema/vega-lite/v5.json"
    :data {:values vals}
-   :mark "bar"
+   :mark {:type "bar"
+          :tooltip true}
    :title "First Preference Votes"
    :width 600
    :height 400
@@ -54,8 +57,11 @@
 
 (defn chart-candidates []
   (let [results (re-frame/subscribe [::subs/results])
-        config (re-frame/subscribe [::subs/vote-config])]
-    (fn []
-      (let [data (-> (graph-create-candidate-vals @config @results)
-                     graph-spec-candidates)]
-        [chart-renderer data]))))
+        config (re-frame/subscribe [::subs/vote-config])
+        results-state @(re-frame/subscribe [::subs/results-loading?])]
+    (if (= results-state :done)
+      (fn []
+        (let [data (-> (graph-create-candidate-vals @config @results)
+                       graph-spec-candidates)]
+          [chart-renderer data]))
+      [:div])))
