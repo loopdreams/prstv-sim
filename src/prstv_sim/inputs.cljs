@@ -11,7 +11,7 @@
 
 (def n-votes-limit 900000)
 
-(def preferce-depth-options ["Shallow" "Mid" "Deep"])
+(def preference-depth-options ["Shallow" "Mid" "Deep"])
 
 (def colour-styles
   {"Black"  "#161925"
@@ -60,75 +60,65 @@
 (defn set-number-of-votes []
   (let [value (re-frame/subscribe [::subs/inputs :n-votes])]
     [:div {:class "mb-6"}
-     [:div.field-label
-      [:label.label "Number of Votes" [hoverable-info-icon "TODO"]]]
-     [:div.field-body
-      [:div.control
-       [:input.input
-        {:type "text"
-         :value @value
-         :placeholder "Enter number of votes"
-         :on-change
-         #(re-frame/dispatch [::events/update-inputs :n-votes (-> % .-target .-value)])}]
-       (when (and (seq @value) (not (valid-number-of-votes?)))
-         [:div.has-text-danger
-          (p/cl-format nil "Total number of votes must be a NUMBER less than ~:d." n-votes-limit)])]]]))
+     [:label {:class styles/default-label} "Number of Votes" [hoverable-info-icon "TODO"]]
+     [:input
+      {:class styles/default-input-field
+       :type "number"
+       :value @value
+       :placeholder "Enter number of votes"
+       :on-change #(re-frame/dispatch [::events/update-inputs :n-votes (-> % .-target .-value)])}]]))
 
 (defn set-number-of-seats []
   (let [value (re-frame/subscribe [::subs/inputs :n-seats])]
-    [:div.field.is-horizontal
-     [:div.field-label
-      [:label.label "Number of Seats" [hoverable-info-icon "TODO"]]]
-     [:div.field-body
-      [:div.control
-       [:input.input
-        {:type "text"
-         :value @value
-         :placeholder "Enter number of seats"
-         :on-change
-         #(re-frame/dispatch [::events/update-inputs :n-seats (-> % .-target .-value)])}]
-       (when (and (seq @value) (not (valid-number-of-seats?)))
-         [:div.has-text-danger
-          "Number of seats has to be a number greater than 0 and less than the total number of candidates."])]]]))
-
-;; TODO set default radio setting
-(defn set-preference-depth []
-  [:div.field.is-horizontal
-   [:div.field-label
-    [:label.label "Preference Depth" [hoverable-info-icon "TODO"]]]
-   [:div.field-body
-    [:div.control
-     (map (fn [text]
-            [:label.radio
-             [:input
-              {:type "radio"
-               :name "preference-depth"
-               :on-change #(when (-> % .-target .-checked)
-                             (re-frame/dispatch [::events/update-inputs
-                                                 :preference-depth
-                                                 (keyword (str/lower-case text))]))}]
-             (str " " text)])
-          preferce-depth-options)]]])
-
-
+    [:div {:class "mb-6"}
+     [:label {:class styles/default-label} "Number of Seats" [hoverable-info-icon "TODO"]]
+     [:div
+      [:input
+       {:class styles/default-input-field
+        :type "number"
+        :value @value
+        :placeholder "Enter number of seats"
+        :on-change #(re-frame/dispatch [::events/update-inputs :n-seats (-> % .-target .-value)])}]
+      (when (and (seq @value) (not (valid-number-of-seats?)))
+        [:div.has-text-danger
+         "Number of seats has to be a number greater than 0 and less than the total number of candidates."])]]))
 
 (defn set-volatility []
   (let [value (re-frame/subscribe [::subs/inputs :volatility])]
-    [:div.field.is-horizontal
-     [:div.field-label.is-normal
-      [:label.label "Volatility" [hoverable-info-icon "TODO"]]]
-     [:div.field-body
-      [:div.field.is-narrow
-       [:div.control
-        [:input.input
-         {:type "text"
-          :value @value
-          :placeholder "(Optional) Enter number between 1 and 100"
-          :on-change
-          #(re-frame/dispatch [::events/update-inputs :volatility (-> % .-target .-value)])}]
-        (when (and (seq @value) (not (valid-number-volatility?)))
-          [:div.has-text-danger
-           "Use a number between 1 and 100"])]]]]))
+    [:div {:class "mb-6"}
+     [:label {:class styles/default-label}"Volatility" [hoverable-info-icon "TODO"]]
+     [:div
+      [:input
+       {:class styles/default-input-field
+        :type "number"
+        :value @value
+        :placeholder "(Optional) Enter number between 1 and 100"
+        :on-change
+        #(re-frame/dispatch [::events/update-inputs :volatility (-> % .-target .-value)])}]
+      (when (and (seq @value) (not (valid-number-volatility?)))
+        [:div.has-text-danger
+         "Use a number between 1 and 100"])]]))
+
+;; TODO set default radio setting
+(defn set-preference-depth []
+  [:div {:class "mb-6"}
+   [:label {:class styles/default-label} "Preference Depth" [hoverable-info-icon "TODO"]]
+   (into
+    [:div]
+    (for [p preference-depth-options]
+      [:div {:class "flex items-center mb-4"}
+       [:input {:name "preference-depth"
+                :type "radio"
+                :value p
+                :id p
+                :class "w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+                :on-change #(when (-> % .-target .-checked)
+                              (re-frame/dispatch [::events/update-inputs
+                                                  :preference-depth
+                                                  (keyword (str/lower-case p))]))}]
+       [:label {:class "ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"} p]]))])
+
+
 
 ;; New Tables
 
@@ -254,7 +244,7 @@
 
 (defn set-vote-params []
   [:div
-   [:h2 {:class styles/table-caption} "Vote Config"]
+   [:h2 {:class "font-semibold text-lg py-3"} "Vote Config"]
    [:form
     [set-number-of-votes]
     [set-number-of-seats]
@@ -422,12 +412,11 @@
 
 (defn preconfig-options-selector []
   [:div
-   [:h2.subtitle "Configuration Profiles"]
+   [:h2 {:class "font-semibold text-lg py-3"} "Configuration Profiles"]
    (conj
     (into [:div]
           (map preconfig-selector-button v-configs/sample-config-options-list))
     [preconfig-selector-button [nil {:name "Clear All" :values nil}]])])
-
 
 
 

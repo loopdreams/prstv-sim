@@ -5,7 +5,7 @@
   {:n-votes          "1000"
    :n-seats          "4"
    :volatility       "10"
-   :preference-depth "mid"
+   :preference-depth :mid
    :party            {1 {:name       "Party A"
                          :popularity "23"
                          :colour     "Yellow"}
@@ -52,7 +52,7 @@
   {:n-votes          "1000"
    :n-seats          "3"
    :volatility       "10"
-   :preference-depth "mid"
+   :preference-depth :mid
    :party            {1 {:name       "Party A"
                          :popularity "23"
                          :colour     "Yellow"}
