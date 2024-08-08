@@ -44,6 +44,32 @@
    (assoc-in db [form k] val)))
 
 (re-frame/reg-event-db
+ ::update-table-field
+ (fn [db [_ table row field new-val party-id]]
+   (if party-id
+     (let [parties (-> db :inputs :party)
+           pid (->> parties
+                    (filter (fn [[_ {:keys [name]}]] (= name new-val)))
+                    ffirst)]
+       (assoc-in db [:inputs table row :party-id] pid))
+     (assoc-in db [:inputs table row field] new-val))))
+
+(re-frame/reg-event-db
+ ::add-blank-table-row
+ (fn [db [_ table]]
+   (let [last-id  (-> db :inputs table keys sort last)]
+     (println last-id)
+     (if (= table :party)
+       (assoc-in db [:inputs table (inc last-id)]
+                 {:name "Enter Name"
+                  :popularity "0"
+                  :colour "White"})
+       (assoc-in db [:inputs table (inc last-id)]
+                 {:name "Enter Name"
+                  :popularity "0"
+                  :party-id nil})))))
+
+(re-frame/reg-event-db
  ::update-popularity-input
  (fn [db [_ type id val]]
    (assoc-in db [:inputs type id :popularity] val)))
@@ -109,4 +135,3 @@
  (fn [{db :db} [_ vote-config candidates my-ballot ballot-id seats]]
    {:dispatch ^:flush-dom [::calculate-results vote-config candidates my-ballot ballot-id seats]
     :db (assoc db :processing-results :loading)}))
-

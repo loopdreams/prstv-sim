@@ -28,7 +28,10 @@
 (re-frame/reg-sub
  ::inputs
  (fn [db [_ k id]]
-   (get-in db (if id [:inputs k id] [:inputs k]))))
+   (cond
+     id    (get-in db [:inputs k id])
+     k     (get-in db [:inputs k])
+     :else (get db :inputs))))
 
 (re-frame/reg-sub
  ::all-inputs
@@ -44,6 +47,13 @@
           vals
           (map :party-id)
           (into #{})))))
+
+
+(re-frame/reg-sub
+ ::active-party-names
+ :<- [::all-inputs]
+ (fn [all-inputs]
+   (map (fn [[_ {:keys [name]}]] name) (:party all-inputs))))
 
 (re-frame/reg-sub
  ::popularity-field-state

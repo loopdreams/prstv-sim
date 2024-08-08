@@ -28,13 +28,11 @@
                       :title "Party"}}})
 
 
-
-
 (defn graph-create-candidate-vals [{:keys [party-colours party-names candidate-party]} {:keys [first-prefs elected]}]
   (println first-prefs)
   (let [total-votes (reduce + (vals first-prefs))]
     (reduce (fn [results cand]
-              (let [percent (int (* 100 (/ (cand first-prefs) total-votes)))
+              (let [percent (* 100 (/ (cand first-prefs) total-votes))
                     party (party-names (cand candidate-party))
                     colour (party-colours ((set/map-invert party-names) party))
                     name (inputs/keyword->name cand)

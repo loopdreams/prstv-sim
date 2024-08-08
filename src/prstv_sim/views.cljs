@@ -10,10 +10,10 @@
 
 
 (defn inputs-panel []
-  [:div
+  [:div {:class "pt-5"}
    [inputs/inputs->vote-config]
-   [inputs/party-input-table]
-   [inputs/candidate-input-table]
+   [inputs/party-table-form]
+   [inputs/candidate-table-form]
    [inputs/set-vote-params]
    [inputs/preconfig-options-selector]])
 
@@ -43,9 +43,10 @@
     (fn []
       [:div.section.has-background-white
        [:div {:class menu-class}
-        (into [:ul]
+        (into [:ul {:class "flex flex-wrap -mb-px"}]
               (map (fn [{:keys [key label]}]
-                     [:li {:class (when (= @active-tab key) "is-active")
+                     [:li {:class "inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
+                           :aria-current (when (= @active-tab key) "page")
                            :on-click #(reset! active-tab key)}
                       [:a
                        label]])
@@ -58,7 +59,7 @@
 
 (defn tab-pages []
   [nav-tabs
-   "tabs is-boxed"
+   "text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:text-gray-400 dark:border-gray-700"
    (list {:key :inputs
           :label "Configure Vote"
           :component [inputs-panel]}
@@ -73,13 +74,16 @@
           :component [:div "About Page"]})])
 
 (defn header-panel []
-  [:section.hero {:class "has-background-primary-white"}
-    [:div.hero-body {:style {:background-color (inputs/colour-styles "Purple")}}
-     [:p.title {:style {:color (inputs/colour-styles "White")}} "Single Transferrable Vote Simulator"]
-     [:p.subtitle {:style {:color (inputs/colour-styles "White")}} "Subtitle..."]]])
+  [:div
+   [:h2 {:class "mb-4 text-4xl tracking-tight font-bold text-gray-900 dark:text-white"}
+    "Single Transferrable Vote Simulator"]
+   [:p {:class "mb-4 font-light"} "Subtitle..."]])
 
 ;; TODO separate out header section
 (defn main-panel []
-  [:div {:style {:background-color (inputs/colour-styles "Purple")}}
-   [header-panel]
-   [tab-pages]])
+  [:section {:class "bg-white dark:bg-gray-900"}
+   [:div {:class "py-8 px-4 mx-auto max-w-screen-xl lg:py-16 lg:px-6"}
+    [:div {:class "max-w-screen-lg text-gray-500 sm:text-lg dark:text-gray-400"}]
+    ;; :style {:background-color (inputs/colour-styles "Purple")}}
+    [header-panel]
+    [tab-pages]]])
