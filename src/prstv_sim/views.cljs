@@ -10,12 +10,15 @@
 
 
 (defn inputs-panel []
-  [:div {:class "pt-5"}
+  [:div
    [inputs/inputs->vote-config]
    [inputs/party-table-form]
    [inputs/candidate-table-form]
    [inputs/set-vote-params]
    [inputs/preconfig-options-selector]])
+
+(defn main-views-wrapper [comp]
+  [:div.py-6 comp])
 
 
 (defn spinner []
@@ -24,16 +27,19 @@
 (defn results-display []
   [:div
    [inputs/generate-results-button]
-   [graphs/chart-candidates]
+
    (let [loading? @(re-frame/subscribe [::subs/results-loading?])]
      (case loading?
        :loading [:div.box [spinner]]
-       :done (let [{:keys [first-prefs elected c-data] :as results} @(re-frame/subscribe [::subs/results])]
-               [:div.box
-                [results/elected-display elected]
-                [results/party-first-prefs-table first-prefs]
+       :done (let [{:keys [elected c-data] :as results} @(re-frame/subscribe [::subs/results])]
+               [:div {:class "overflow-x-auto"}
+                [:div {:class "grid grid-cols-2 gap-4"}
+                 [results/elected-display elected]
+                 [graphs/chart-parties]]
+                ;; [results/party-first-prefs-table first-prefs]
                 [:h2 [:span.has-text-weight-bold "Quota: "] (:quota c-data)]
-                [results/vote-counts-table results]])
+                [results/vote-counts-table results]
+                [graphs/chart-candidates]])
        [:div]))])
 
 
@@ -62,16 +68,16 @@
    "text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:text-gray-400 dark:border-gray-700"
    (list {:key :inputs
           :label "Configure Vote"
-          :component [inputs-panel]}
+          :component [main-views-wrapper [inputs-panel]]}
          {:key :my-ballot
           :label "My Ballot"
-          :component [inputs/user-ballot-form]}
+          :component [main-views-wrapper [inputs/user-ballot-form]]}
          {:key :results
           :label "Results"
-          :component [results-display]}
+          :component [main-views-wrapper [results-display]]}
          {:key :about
           :label "About"
-          :component [:div "About Page"]})])
+          :component [main-views-wrapper [:div "About Page TODO"]]})])
 
 (defn header-panel []
   [:div

@@ -210,41 +210,41 @@
 
 
 ;; TODO fix 'available preferences' here - doesn't update properly
+
 (defn ballot-form-row [cand-name]
   (let [val (or (-> @(re-frame/subscribe [::subs/my-ballot]) (get cand-name)) "Select Preference")
         available-preferences @(re-frame/subscribe [::subs/available-preferences])
         available-preferences (if (not= val "Select Preference") (conj available-preferences val) available-preferences)]
-    [:div.field.is-horizontal
-     [:div.field-label
-      [:label.label cand-name]]
-     [:div.field-body
-      [:div.control
-       [:div.select
-        (into
-         [:select
-          {:value val
-           :on-change #(re-frame/dispatch [::events/update-my-ballot cand-name (-> % .-target .-value)])}]
-         (cons [:option "Select Preference"]
-               (map (fn [p] [:option p]) available-preferences)))]]]]))
+    [:div {:class "mb-6"}
+     [:label {:class styles/default-label} cand-name]
+     (into
+      [:select {:class styles/drop-down-select
+                :value val
+                :on-change #(re-frame/dispatch [::events/update-my-ballot cand-name (-> % .-target .-value)])}]
+      (cons [:option "Select Preference"]
+            (map (fn [p] [:option p]) available-preferences)))]))
 
-;; TODO remove the need for 'activation' here
+
 (defn user-ballot-form []
   (let [candidates @(re-frame/subscribe [::subs/inputs :candidate])
         my-ballot? @(re-frame/subscribe [::subs/my-ballot?])
+        vote-config @(re-frame/subscribe [::subs/vote-config])
         c-names (->> (vals candidates) (map :name))]
     (if my-ballot?
-      [:div.box
-       [:h2.title.is-4 "My Ballot"]
+      [:div
+       [:h2 {:class styles/default-h2 } "My Ballot"]
        (into [:div]
              (map ballot-form-row c-names))]
-      [:div.box
+      [:div
        [:button {:class styles/default-button
-                 :on-click #(re-frame/dispatch [::events/activate-my-ballot])}
-        "Create and Track your own ballot"]])))
+                 :on-click #(re-frame/dispatch [::events/activate-my-ballot])
+                 :disabled (not vote-config)}
+        "Create and track your own ballot"]])))
+
 
 (defn set-vote-params []
   [:div
-   [:h2 {:class "font-semibold text-lg py-3"} "Vote Config"]
+   [:h2 {:class styles/default-h2} "Vote Config"]
    [:form
     [set-number-of-votes]
     [set-number-of-seats]
@@ -412,7 +412,7 @@
 
 (defn preconfig-options-selector []
   [:div
-   [:h2 {:class "font-semibold text-lg py-3"} "Configuration Profiles"]
+   [:h2 {:class styles/default-h2} "Configuration Profiles"]
    (conj
     (into [:div]
           (map preconfig-selector-button v-configs/sample-config-options-list))
