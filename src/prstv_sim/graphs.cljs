@@ -13,6 +13,7 @@
   {:$schema "https://vega.github.io/schema/vega-lite/v5.json"
    :data {:values vals}
    :width "container"
+   :height 400
    :config {:axis {:titleFontSize 14
                    :labelFontSize 14}
             :legend {:titleFontSize 14
@@ -58,21 +59,21 @@
    :mark {:type "bar"
           :tooltip true}
    :encoding {:x
-               {:field :name
-                :type "nominal"
-                :title nil
-                :axis
-                {:labelAngle 0
-                 :ticks false}}
-               :y
-               {:field :percent
-                :type "quantitative"
-                :title "Percentage %"}
-               :color
-               {:field :name
-                :title nil
-                :type :nominal
-                :scale {:range colours}}}})
+              {:field :name
+               :type "nominal"
+               :title nil
+               :axis
+               {:labelAngle 0
+                :ticks false}}
+              :y
+              {:field :percent
+               :type "quantitative"
+               :title "Percentage %"}
+              :color
+              {:field :name
+               :title nil
+               :type :nominal
+               :scale {:range colours}}}})
 
 
 (defn graph-create-candidate-vals [{:keys [party-colours party-names candidate-party]} {:keys [first-prefs elected c-data]}]
@@ -162,6 +163,5 @@
     (if (= results-state :done)
       (let [data (-> (graph-create-party-vals @config @results)
                      (graph-spec-parties graph-colours))]
-        (println data)
         [chart-renderer-parties data])
       [:div])))

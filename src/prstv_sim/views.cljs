@@ -33,11 +33,10 @@
        :loading [:div.box [spinner]]
        :done (let [{:keys [elected c-data] :as results} @(re-frame/subscribe [::subs/results])]
                [:div {:class "overflow-x-auto"}
-                [:div {:class "grid grid-cols-2 gap-4"}
+                [:div {:class "grid md:grid-cols-2 gap-4 mb-6 grid-cols-1"}
                  [results/elected-display elected]
                  [graphs/chart-parties]]
                 ;; [results/party-first-prefs-table first-prefs]
-                [:h2 [:span.has-text-weight-bold "Quota: "] (:quota c-data)]
                 [results/vote-counts-table results]
                 [graphs/chart-candidates]])
        [:div]))])
