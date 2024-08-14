@@ -8,6 +8,7 @@
    [clojure.string :as str]))
 
 (def n-votes-limit 900000)
+(def n-votes-warning 90000)
 
 (def preference-depth-options ["Shallow" "Mid" "Deep"])
 
@@ -35,29 +36,43 @@
 ;; Vote Configs
 
 (defn set-number-of-votes []
-  (let [value (re-frame/subscribe [::subs/inputs :n-votes])]
+  (let [value (re-frame/subscribe [::subs/inputs :n-votes])
+        field-ok (and (seq @value) (valid-number-of-votes?))
+        field-warning (> @value n-votes-warning)]
     [:div {:class "mb-6"}
-     [:label {:class styles/default-label} "Number of Votes" [hoverable-info-icon "TODO"]]
-     [:input
-      {:class styles/default-input-field
-       :type "number"
-       :value @value
-       :placeholder "Enter number of votes"
-       :on-change #(re-frame/dispatch [::events/update-inputs :n-votes (-> % .-target .-value)])}]]))
-
-(defn set-number-of-seats []
-  (let [value (re-frame/subscribe [::subs/inputs :n-seats])]
-    [:div {:class "mb-6"}
-     [:label {:class styles/default-label} "Number of Seats" [hoverable-info-icon "TODO"]]
+     [:label {:class (if-not field-ok
+                       styles/warning-label
+                       styles/default-label)} "Number of Votes" [hoverable-info-icon "TODO"]]
      [:div
       [:input
-       {:class styles/default-input-field
+       {:class (if-not field-ok styles/warning-input-field styles/default-input-field)
+        :type "number"
+        :value @value
+        :placeholder "Enter number of votes"
+        :on-change #(re-frame/dispatch [::events/update-inputs :n-votes (-> % .-target .-value)])}]
+      (cond
+        (not field-ok) [:div {:class styles/warning-text}
+                        (str "Number of votes should be less than " n-votes-limit)]
+        field-warning [:div {:class styles/caution-text}
+                       "It will take several seconds to generate results when vote counts are large, due to the time it takes to generate the ballots."]
+        :else nil)]]))
+
+(defn set-number-of-seats []
+  (let [value (re-frame/subscribe [::subs/inputs :n-seats])
+        field-ok (and (seq @value) (valid-number-of-seats?))]
+    [:div {:class "mb-6"}
+     [:label {:class (if-not field-ok
+                       styles/warning-label
+                       styles/default-label)} "Number of Seats" [hoverable-info-icon "TODO"]]
+     [:div
+      [:input
+       {:class (if-not field-ok styles/warning-input-field styles/default-input-field)
         :type "number"
         :value @value
         :placeholder "Enter number of seats"
         :on-change #(re-frame/dispatch [::events/update-inputs :n-seats (-> % .-target .-value)])}]
-      (when (and (seq @value) (not (valid-number-of-seats?)))
-        [:div.has-text-danger
+      (when-not field-ok
+        [:div {:class styles/warning-text}
          "Number of seats has to be a number greater than 0 and less than the total number of candidates."])]]))
 
 (defn set-volatility []
@@ -124,8 +139,9 @@
      [:select {:class styles/drop-down-select
                :value val
                :on-change #(re-frame/dispatch [::events/update-table-field table id column (-> % .-target .-value) party-id])}]
-     (for [o options]
-       [:option o]))]])
+     [[:option "Select Party"]
+      (for [o options]
+        [:option o])])]])
 
 (defn party-table-form-row [[id {:keys [name popularity colour]}]]
   (let [active-party-ids @(re-frame/subscribe [::subs/active-party-ids])]
@@ -226,7 +242,9 @@
        [:button {:class styles/default-button
                  :on-click #(re-frame/dispatch [::events/activate-my-ballot])
                  :disabled (not vote-config)}
-        "Create and track your own ballot"]])))
+        "Create and track your own ballot"]
+       (when (not vote-config)
+         [:p "Configure the vote before adding your ballot"])])))
 
 
 
@@ -266,6 +284,21 @@
 
 
 
+
+;; MAYBE Ignore blank candidates
+;; TODO each candidate entry must have all keys
+;; TODO Number of seats less than no. candidates
+;; TODO number votes less than x
+
+(defn valid-inputs? [n-seats n-votes candidates]
+  (and
+    (< n-seats (count candidates))
+    (< n-votes n-votes-limit)
+    (every? #(contains? % :name) (vals candidates))
+    (every? #(contains? % :party-id) (vals candidates))))
+
+
+
 ;; TODO proper validation here
 ;; TODO User feedback when config is added successfully
 (defn inputs->vote-config []
@@ -302,12 +335,13 @@
                           :volatility           (parse-long volatility)
                           :volatility-pp        5}] ;; TODO set this somewhere else...
 
-        [:div
-         [:button
-          {:class styles/default-button
-           :on-click #(re-frame/dispatch [::events/add-vote-config vote-config])}
-          "Add Vote Config"]]))))
-
-
-;;
-(defn validate-config [config] nil)
+          [:div
+           [:button
+            {:class styles/default-button
+             :disabled (not (valid-inputs? n-seats n-votes candidate))
+             :on-click #(re-frame/dispatch [::events/add-vote-config vote-config])}
+            "Add Vote Config"]
+           (when (or (not (every? #(contains? % :name) (vals candidate)))
+                     (not (every? #(contains? % :party-id) (vals candidate))))
+             [:div {:class styles/warning-text}
+              "Incomplete information for a Candidate in the Candidate Table"])]))))

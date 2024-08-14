@@ -95,23 +95,23 @@
                       :backgroundColor (:backgroundColor datasets)
                       :borderWidth 1}]}
    :options
-   {:plugins {
-              ;; :legend {:display false}
-              :annotation
-              {:annotations
-               {:line1
-                {:type "line"
-                 :yMin 16
-                 :yMax 16
-                 :borderWidth 2
-                 :borderColor "Red"}}}}}})
+   {:plugins {:legend {:display false}}}})
+              ;; :annotation
+              ;; {:annotations
+              ;;  {:line1
+              ;;   {:type "line"
+              ;;    :yMin 16
+              ;;    :yMax 16
+              ;;    :borderWidth 2
+              ;;    :borderColor "Red"}}}}}})
 
 (defn graph-spec-parties-chartjs [{:keys [labels datasets]}]
   {:type "bar"
    :data {:labels labels
           :datasets [{:data (:data datasets)
                       :backgroundColor (:backgroundColor datasets)
-                      :borderWidth 1}]}})
+                      :borderWidth 1}]}
+   :options {:plugins {:legend {:display false}}}})
 
 (defn graph-create-candidate-vals [{:keys [party-colours party-names candidate-party]} {:keys [first-prefs elected c-data]}]
   (let [quota (:quota c-data)

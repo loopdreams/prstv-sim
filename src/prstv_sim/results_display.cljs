@@ -27,7 +27,9 @@
       {:class styles/default-button
        :on-click #(re-frame/dispatch [::events/process-results vote-config candidates my-ballot ballot-id seats])
        :disabled (or (not vote-config) (= results-loading? :loading))}
-      "Generate Results"]]))
+      "Generate Results"]
+     (when (not vote-config)
+       [:div "You must add a vote config before generating the results."])]))
 
 ;; Components
 
