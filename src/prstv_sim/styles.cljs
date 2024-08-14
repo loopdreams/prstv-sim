@@ -1,5 +1,29 @@
 (ns prstv-sim.styles)
 
+
+;; Colours
+(def colour-styles
+  {"Black"  "#161925"
+   "Yellow" "#F1D302"
+   "Red"    "#C1292E"
+   "Blue"   "#235789"
+   "White"  "#FDFFFC"
+   "Green"  "#8A9546"
+   "Purple" "#72405C"})
+
+(def party-colours-list (keys colour-styles))
+
+(defn get-colour-style [key]
+  (let [data {:style {:background-color ""}}
+        data (if (or (= key "Yellow") (= key "White") (= key "Green"))
+               (assoc-in data [:style :color] (colour-styles "Black"))
+               (assoc-in data [:style :color] (colour-styles "White")))]
+    (assoc-in data [:style :background-color] (colour-styles key))))
+
+(comment
+  (get-colour-style "Black"))
+
+;; Tailwind
 (def default-h2 "font-semibold text-lg py-3")
 
 (def default-button "text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700")

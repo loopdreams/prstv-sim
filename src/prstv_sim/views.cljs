@@ -26,7 +26,7 @@
 
 (defn results-display []
   [:div
-   [inputs/generate-results-button]
+   [results/generate-results-button]
    ;; [graphs/chartjs-sankey :snow-white 2]
 
    (let [loading? @(re-frame/subscribe [::subs/results-loading?])]

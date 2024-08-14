@@ -7,7 +7,6 @@
    [prstv-sim.db :as db]
    [day8.re-frame.tracing :refer-macros [fn-traced]]))
 
-
 (re-frame/reg-event-db
  ::initialize-db
  (fn-traced [_ _]
@@ -29,19 +28,6 @@
  ::delete-inputs
  (fn [db [_ k id]]
    (update-in db [:inputs k] dissoc id)))
-
-(re-frame/reg-event-db
- ::toggle-popularity-field-state
- (fn [db [_ id]]
-   (let [state (get-in db [:inputs :popularity-field-state id])]
-     (if state
-       (update-in db [:inputs :popularity-field-state] dissoc id)
-       (assoc-in db [:inputs :popularity-field-state id] :editing)))))
-
-(re-frame/reg-event-db
- ::update-form
- (fn [db [_ form k val]]
-   (assoc-in db [form k] val)))
 
 (re-frame/reg-event-db
  ::update-table-field
@@ -69,25 +55,6 @@
                   :popularity "0"
                   :party-id nil})))))
 
-(re-frame/reg-event-db
- ::update-popularity-input
- (fn [db [_ type id val]]
-   (assoc-in db [:inputs type id :popularity] val)))
-
-(re-frame/reg-event-db
- ::add-form
- (fn [db [_ form type party-id]]
-   (let [form-data    (form db)
-         form-data    (if party-id (assoc form-data :party-id party-id)
-                          form-data)
-         current-data (type (:inputs db))
-         id           (if current-data
-                        (-> (keys current-data)
-                            sort last inc)
-                        1)]
-     (-> db
-         (assoc-in [:inputs type id] form-data)
-         (dissoc form)))))
 
 (re-frame/reg-event-db
  ::activate-my-ballot

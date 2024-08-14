@@ -3,16 +3,38 @@
             [prstv-sim.events :as events]
             [prstv-sim.inputs :as inputs]
             [prstv-sim.styles :as styles]
-            [re-frame.core :as re-frame]
-            [clojure.set :as set]))
+            [re-frame.core :as re-frame]))
 
+;; Generate Results
+(defn convert-my-ballot [preferences]
+  (let [id (str (random-uuid))
+        ballot (reduce (fn [b [name pref]]
+                         (assoc b (inputs/name->keyword name) (parse-long pref)))
+                       {}
+                       preferences)]
+    (zipmap [id] [ballot])))
 
+(defn generate-results-button []
+  (let [vote-config      @(re-frame/subscribe [::subs/vote-config])
+        my-ballot        @(re-frame/subscribe [::subs/my-ballot])
+        results-loading? @(re-frame/subscribe [::subs/results-loading?])
+        my-ballot        (if my-ballot (convert-my-ballot my-ballot) {})
+        ballot-id        (when (seq my-ballot) (ffirst my-ballot))
+        seats            (:n-seats vote-config)
+        candidates       (:candidates vote-config)]
+    [:div
+     [:button
+      {:class styles/default-button
+       :on-click #(re-frame/dispatch [::events/process-results vote-config candidates my-ballot ballot-id seats])
+       :disabled (or (not vote-config) (= results-loading? :loading))}
+      "Generate Results"]]))
 
+;; Components
 
 (defn elected-candidate-display [candidate {:keys [party-names candidate-party party-colours]}]
   (let [party-id (-> candidate candidate-party)
         party-name (-> party-id party-names)]
-    [:div (merge (inputs/get-colour-style (party-colours party-id))
+    [:div (merge (styles/get-colour-style (party-colours party-id))
                  {:class "py-4 px-4 rounded-lg text-bold"})
      (str (inputs/keyword->name candidate) " (" party-name ")")]))
 
@@ -69,7 +91,7 @@
 
 (defn party-icon [colour]
   [:span {:class "fas fa-circle pr-1"
-          :style {:color (inputs/colour-styles colour)}}])
+          :style {:color (styles/colour-styles colour)}}])
 
 (defn vote-counts-data-row [candidate counts-data table-data vote-config candidate-shares seats elected]
   (let [{:keys [position]}                                  (candidate table-data)
@@ -79,7 +101,7 @@
         party-colour                                        (party-colours party-id)]
     [:tr
      [:th {:class "px-2 py-2"} (when (some #{position} (range seats)) (inc position))]
-     ;; [:td (merge {:class "px-2 py-2"} (inputs/get-colour-style party-colour)) party-name]
+     ;; [:td (merge {:class "px-2 py-2"} (styles/get-colour-style party-colour)) party-name]
      [:td (party-icon party-colour) (str " " party-name)]
      [:th (merge {:class "px-2 py-2"}) (inputs/keyword->name candidate)]
      [:td {:class "px-2 py-2"} (str (candidate candidate-shares) " %")]

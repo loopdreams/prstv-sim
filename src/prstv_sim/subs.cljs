@@ -3,27 +3,6 @@
    [re-frame.core :as re-frame]))
 
 
-(re-frame/reg-sub
- ::party-form
- (fn [db]
-   (:party-form db)))
-
-(re-frame/reg-sub
- ::candidate-form
- (fn [db]
-   (:candidate-form db)))
-
-(re-frame/reg-sub
- ::form-valid?
- (fn [db [_ type]]
-   (let [form                      (type db)
-         {:keys [name popularity]} form]
-     (and name
-          (if (= type :party-form) (:colour form) (:party form))
-          (or (not popularity)
-              (and
-               (every? #(re-find #"\d" %) popularity)
-               (< popularity 101)))))))
 
 (re-frame/reg-sub
  ::inputs
@@ -55,10 +34,6 @@
  (fn [all-inputs]
    (map (fn [[_ {:keys [name]}]] name) (:party all-inputs))))
 
-(re-frame/reg-sub
- ::popularity-field-state
- (fn [db [_ id]]
-   (get-in db [:inputs :popularity-field-state id])))
 
 (re-frame/reg-sub
  ::vote-config
@@ -117,7 +92,3 @@
    (:results db)))
 
 
-(re-frame/reg-sub
- ::chart-js-test
- (fn [db]
-   (:test db)))

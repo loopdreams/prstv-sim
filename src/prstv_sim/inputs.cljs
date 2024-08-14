@@ -5,36 +5,12 @@
    [prstv-sim.events :as events]
    [prstv-sim.sample-configs :as v-configs]
    [prstv-sim.styles :as styles]
-   [clojure.pprint :as p]
    [clojure.string :as str]))
-
 
 (def n-votes-limit 900000)
 
 (def preference-depth-options ["Shallow" "Mid" "Deep"])
 
-(def colour-styles
-  {"Black"  "#161925"
-   "Yellow" "#F1D302"
-   "Red"    "#C1292E"
-   "Blue"   "#235789"
-   "White"  "#FDFFFC"
-   "Green"  "#8A9546"
-   "Purple" "#72405C"})
-
-(def party-colours-list (keys colour-styles))
-
-(defn get-colour-style [key]
-  (let [data {:style {:background-color ""}}
-        data (if (or (= key "Yellow") (= key "White") (= key "Green"))
-               (assoc-in data [:style :color] (colour-styles "Black"))
-               (assoc-in data [:style :color] (colour-styles "White")))]
-    (assoc-in data [:style :background-color] (colour-styles key))))
-
-(comment
-  (get-colour-style "Black"))
-
-;; TODO perhaps allow commas in input
 (defn valid-number-of-votes? []
   (let [value @(re-frame/subscribe [::subs/inputs :n-votes])]
     (when (every? #(re-find #"\d" %) value)
@@ -56,6 +32,7 @@
   [:span.icon
    [:i {:class "fas fa-info-circle" :data-tooltip info-text}]])
 
+;; Vote Configs
 
 (defn set-number-of-votes []
   (let [value (re-frame/subscribe [::subs/inputs :n-votes])]
@@ -119,8 +96,17 @@
        [:label {:class "ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"} p]]))])
 
 
+(defn set-vote-params []
+  [:div
+   [:h2 {:class styles/default-h2} "Vote Config"]
+   [:form
+    [set-number-of-votes]
+    [set-number-of-seats]
+    [set-preference-depth]
+    [set-volatility]]])
 
-;; New Tables
+
+;; Tables
 
 (defn table-field-input-el [table id column val type & colour]
   [:td {:class "px-6 py-4"}
@@ -128,7 +114,7 @@
                    :class styles/default-input-field
                    :value val
                    :on-change #(re-frame/dispatch [::events/update-table-field table id column (-> % .-target .-value)])}
-                  (when colour (get-colour-style (first colour))))]])
+                  (when colour (styles/get-colour-style (first colour))))]])
 
 (defn table-field-select-el [table id column val options & party-id]
   [:td {:class "px-6 py-4"}
@@ -145,7 +131,7 @@
     [:tr {:class styles/table-body}
      [table-field-input-el :party id :name name "text" colour]
      [table-field-input-el :party id :popularity popularity "number"]
-     [table-field-select-el :party id :colour colour party-colours-list]
+     [table-field-select-el :party id :colour colour styles/party-colours-list]
      [:td
       [:button {:disabled (when (some #{id} active-party-ids) true)
                 :on-click #(re-frame/dispatch [::events/delete-inputs :party id])} "X"]]]))
@@ -209,7 +195,7 @@
        "Add Candidate"]]]))
 
 
-;; TODO fix 'available preferences' here - doesn't update properly
+;; My Ballot
 
 (defn ballot-form-row [cand-name]
   (let [val (or (-> @(re-frame/subscribe [::subs/my-ballot]) (get cand-name)) "Select Preference")
@@ -242,166 +228,8 @@
         "Create and track your own ballot"]])))
 
 
-(defn set-vote-params []
-  [:div
-   [:h2 {:class styles/default-h2} "Vote Config"]
-   [:form
-    [set-number-of-votes]
-    [set-number-of-seats]
-    [set-preference-depth]
-    [set-volatility]]])
 
-;; Parties & Candidates
-
-(defn edit-button [id]
-  (let [state @(re-frame/subscribe [::subs/active-party-names id])]
-    [:span.icon.is-clickable {:on-click #(re-frame/dispatch [::events/toggle-popularity-field-state id])}
-     [:i {:class (if (= state :editing) "fas fa-times" "fas fa-edit")}]]))
-
-(defn table-popularity-field-display [id popularity key]
-  (let [field-state @(re-frame/subscribe [::subs/active-party-names id])]
-    (if (= field-state :editing)
-      [:td [:input.input {:class "is-small"
-                          :size 5
-                          :type "text" :placeholder popularity
-                          :on-change #(re-frame/dispatch [::events/update-popularity-input key id (-> % .-target .-value)])}]]
-      [:td (if popularity (str popularity "%  ") "")])))
-
-
-(defn party-row-display [id active-party-ids]
-  (let [{:keys [name popularity colour]} @(re-frame/subscribe [::subs/inputs :party id])
-        editing? @(re-frame/subscribe [::subs/active-party-names id])]
-    [:tr
-     (if (and (not (active-party-ids id)) (not editing?))
-       [:td [:button.delete {:on-click #(re-frame/dispatch [::events/delete-inputs :party id])}]]
-       [:td ""])
-     [:th (get-colour-style colour) name]
-     [table-popularity-field-display id popularity :party]
-     [:td [edit-button id]]]))
-
-
-(defn candidate-row-display [id]
-  (let [{:keys [name popularity party-id]} @(re-frame/subscribe [::subs/inputs :candidate id])
-        party-data @(re-frame/subscribe [::subs/inputs :party party-id])
-        colour (:colour party-data)
-        p-name (:name party-data)]
-    [:tr
-     [:td [:button.delete {:on-click #(re-frame/dispatch [::events/delete-inputs :candidate id])}]]
-     [:th name]
-     [:td (get-colour-style colour) p-name]
-     [table-popularity-field-display id popularity :candidate]
-     [:td [edit-button id]]]))
-
-
-(defn add-entries-form [{:keys [form-type form-name name-val pop-val col-party-name col-party-val select-list party-id valid]}]
-  [:div.pt-4
-   [:form
-    [:div.field.is-horizontal
-     [:div.field-label
-      [:label.label "Name"]]
-     [:div.field-body
-      [:div.control
-       [:input.input {:type "text" :placeholder (str "Enter " (name form-name) " name") :value name-val
-                      :on-change #(re-frame/dispatch [::events/update-form form-type :name (-> % .-target .-value)])}]]]]
-    [:div.field.is-horizontal
-     [:div.field-label
-      [:label.label "Popularity"]]
-     [:div.field-body
-      [:div.control
-       [:input.input {:type "text" :placeholder "(Optional) Number between 1 and 100" :value pop-val
-                      :on-change #(re-frame/dispatch [::events/update-form form-type :popularity (-> % .-target .-value)])}]]]]
-    [:div.field.is-horizontal
-     [:div.field-label
-      [:label.label (str/capitalize (name col-party-name))]]
-     [:div.field-body
-      [:div.control
-       [:div.select
-        [:select {:value col-party-val
-                  :on-change #(re-frame/dispatch [::events/update-form form-type col-party-name (-> % .-target .-value)])}
-         [:option (str "Select " (name col-party-name))]
-         (map (fn [v] [:option {:key v :val v} v]) select-list)]]]]]]
-   [:div.pt-4
-    [:button
-     {:class styles/default-button
-      :disabled (not valid)
-      :on-click #(re-frame/dispatch [::events/add-form form-type form-name (when party-id party-id)])}
-     (str "Add " (name form-name) " to table")]]])
-
-
-(defn party-row-add []
-  (let [value      @(re-frame/subscribe [::subs/party-form])
-        name       (get value :name "")
-        popularity (get value :popularity "")
-        colour     (get value :colour "")
-        is-valid?  @(re-frame/subscribe [::subs/form-valid? :party-form])]
-    [add-entries-form
-     {:form-type      :party-form
-      :form-name      :party
-      :name-val       name
-      :pop-val        popularity
-      :col-party-name :colour
-      :col-party-val  colour
-      :select-list    party-colours-list
-      :valid          is-valid?}]))
-
-(defn candidate-row-add []
-  (let [parties    @(re-frame/subscribe [::subs/party-list])
-        value      @(re-frame/subscribe [::subs/candidate-form])
-        name       (get value :name "")
-        popularity (get value :popularity "")
-        party      (get value :party "")
-        party-id   @(re-frame/subscribe [::subs/party-id party])
-        is-valid?  @(re-frame/subscribe [::subs/form-valid? :candidate-form])]
-    [add-entries-form
-     {:form-type      :candidate-form
-      :form-name      :candidate
-      :name-val       name
-      :pop-val        popularity
-      :col-party-name :party
-      :col-party-val  party
-      :select-list    parties
-      :party-id       party-id
-      :valid          is-valid?}]))
-
-(defn party-input-table []
-  (let [data @(re-frame/subscribe [::subs/inputs :party])
-        row-ids (keys data)
-        active-party-ids @(re-frame/subscribe [::subs/active-party-ids])]
-    [:div.box
-     [:h2.title.is-4 "Parties"]
-     [:div.columns
-      [:div.column.is-two-fifths
-       [party-row-add]]
-      [:div.column
-       (when row-ids
-         [:table.table
-          [:thead
-           [:tr
-            [:th ""]
-            [:th "Name"]
-            [:th "Popularity"]]]
-          [:tbody
-           (map #(party-row-display % active-party-ids) row-ids)]])]]]))
-
-(defn candidate-input-table []
-  (let [data (re-frame/subscribe [::subs/inputs :candidate])
-        row-ids (keys @data)]
-    [:div.box
-     [:h2.title.is-4 "Candidates"]
-     [:div.columns
-      [:div.column.is-two-fifths
-       [candidate-row-add]]
-      [:div.column
-       (when row-ids
-         [:table.table
-          [:thead
-            [:tr
-             [:th ""]
-             [:th "Name"]
-             [:th "Party"]
-             [:th "Popularity"]]]
-          [:tbody
-           (map candidate-row-display row-ids)]])]]]))
+;; Pre-Configs
 
 ;; TODO different button style
 (defn preconfig-selector-button [[_ {:keys [name values]}]]
@@ -422,7 +250,6 @@
 
 ;; Convert Inputs to Vote Map
 
-
 (defn name->keyword [name]
   (when name
     (-> name
@@ -435,15 +262,6 @@
     (->>
      (map str/capitalize (-> (name kw) (str/split #"-")))
      (str/join " "))))
-
-
-(defn convert-my-ballot [preferences]
-  (let [id (str (random-uuid))
-        ballot (reduce (fn [b [name pref]]
-                         (assoc b (name->keyword name) (parse-long pref)))
-                       {}
-                       preferences)]
-    (zipmap [id] [ballot])))
 
 
 
@@ -489,17 +307,3 @@
            :on-click #(re-frame/dispatch [::events/add-vote-config vote-config])}
           "Add Vote Config"]]))))
 
-(defn generate-results-button []
-  (let [vote-config      @(re-frame/subscribe [::subs/vote-config])
-        my-ballot        @(re-frame/subscribe [::subs/my-ballot])
-        results-loading? @(re-frame/subscribe [::subs/results-loading?])
-        my-ballot        (if my-ballot (convert-my-ballot my-ballot) {})
-        ballot-id        (when (seq my-ballot) (ffirst my-ballot))
-        seats            (:n-seats vote-config)
-        candidates       (:candidates vote-config)]
-    [:div
-     [:button
-      {:class styles/default-button
-       :on-click #(re-frame/dispatch [::events/process-results vote-config candidates my-ballot ballot-id seats])
-       :disabled (or (not vote-config) (= results-loading? :loading))}
-      "Generate Results"]]))

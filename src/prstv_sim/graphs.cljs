@@ -83,7 +83,7 @@
   (let [sorted  (reverse (sort-by :percent vega-data))
         vals    (map :percent sorted)
         labels  (map :name sorted)
-        colours (map (comp inputs/colour-styles :colour) sorted)]
+        colours (map (comp styles/colour-styles :colour) sorted)]
     {:labels labels
      :datasets {:data vals
                 :backgroundColor colours}}))
@@ -245,7 +245,7 @@
 (defn order-party-colours-for-chart [{:keys [party-names party-colours]}]
   (let [order (keys (sort-by val party-names))]
     (for [id order]
-      (inputs/colour-styles (party-colours id)))))
+      (styles/colour-styles (party-colours id)))))
 
 #_(defn chart-candidates []
     (let [results (re-frame/subscribe [::subs/results])
