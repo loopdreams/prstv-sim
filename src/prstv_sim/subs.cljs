@@ -86,6 +86,11 @@
      (:my-ballot db)))
 
 (re-frame/reg-sub
+ ::all-ballots
+ (fn [db]
+   (:all-ballots db)))
+
+(re-frame/reg-sub
  ::available-preferences
  (fn [db]
    (:available-preferences db)))
@@ -111,3 +116,8 @@
  (fn [db]
    (:results db)))
 
+
+(re-frame/reg-sub
+ ::chart-js-test
+ (fn [db]
+   (:test db)))

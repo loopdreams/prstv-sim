@@ -187,7 +187,7 @@
       ["Name" "Popularity" "Colour"]
       rows
       "Parties"
-      "Select the parties that will be running in the election. Set the party name, how popular the party is, and a colour for the party."
+      "Set the parties that will be running in the election. Set the party name, how popular the party is, and a colour for the party."
       :party]
      [:div.pt-5
       [:button

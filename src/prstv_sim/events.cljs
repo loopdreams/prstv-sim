@@ -128,7 +128,8 @@
          (assoc-in [:results :first-prefs] first-prefs)
          (assoc-in [:results :c-data] c-data)
          (assoc :marked-ballot ballot-id)
-         (assoc :processing-results :done)))))
+         (assoc :processing-results :done)
+         (assoc :all-ballots ballots)))))
 
 (re-frame/reg-event-fx
  ::process-results
