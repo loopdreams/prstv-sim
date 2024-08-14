@@ -98,7 +98,7 @@
 
 (defn set-vote-params []
   [:div
-   [:h2 {:class styles/default-h2} "Vote Config"]
+   [:h2 {:class styles/default-h2} "Vote Parameters"]
    [:form
     [set-number-of-votes]
     [set-number-of-seats]
@@ -112,6 +112,7 @@
   [:td {:class "px-6 py-4"}
    [:input (merge {:type type
                    :class styles/default-input-field
+                   :placeholder "Enter Name"
                    :value val
                    :on-change #(re-frame/dispatch [::events/update-table-field table id column (-> % .-target .-value)])}
                   (when colour (styles/get-colour-style (first colour))))]])
@@ -307,3 +308,6 @@
            :on-click #(re-frame/dispatch [::events/add-vote-config vote-config])}
           "Add Vote Config"]]))))
 
+
+;;
+(defn validate-config [config] nil)

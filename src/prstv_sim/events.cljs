@@ -47,11 +47,11 @@
      (println last-id)
      (if (= table :party)
        (assoc-in db [:inputs table (inc last-id)]
-                 {:name "Enter Name"
+                 {:name ""
                   :popularity "0"
                   :colour "White"})
        (assoc-in db [:inputs table (inc last-id)]
-                 {:name "Enter Name"
+                 {:name ""
                   :popularity "0"
                   :party-id nil})))))
 
