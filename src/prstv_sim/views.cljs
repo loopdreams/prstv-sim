@@ -27,7 +27,6 @@
 (defn results-display []
   [:div
    [results/generate-results-button]
-   ;; [graphs/chartjs-sankey :minnie-mouse 4]
 
    (let [loading? @(re-frame/subscribe [::subs/results-loading?])]
      (case loading?
@@ -36,11 +35,10 @@
                [:div {:class "overflow-x-auto"}
                 [:div {:class "grid md:grid-cols-2 gap-4 mb-6 grid-cols-1"}
                  [results/elected-display elected]
-                 [graphs/chart-js-parties-wrapper]]
-                ;; [results/party-first-prefs-table first-prefs]
+                 [graphs/chart-parties-wrapper]]
                 [results/vote-counts-table results]
-                [graphs/chartjs-sankey]
-                [graphs/chart-js-candidates-wrapper]])
+                [graphs/chart-sankey]
+                [graphs/chart-candidates-wrapper]])
        [:div]))])
 
 

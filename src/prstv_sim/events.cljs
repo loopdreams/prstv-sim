@@ -78,7 +78,8 @@
        (assoc :results nil)
        (assoc :processing-results nil)
        (assoc :my-ballot? nil)
-       (assoc :my-ballot nil))))
+       (assoc :my-ballot nil)
+       (assoc :sankey-selector nil))))
 
 (re-frame/reg-event-db
  ::calculate-results
@@ -91,8 +92,7 @@
          (assoc-in [:results :first-prefs] first-prefs)
          (assoc-in [:results :c-data] c-data)
          (assoc :marked-ballot ballot-id)
-         (assoc :processing-results :done)
-         (assoc :all-ballots ballots)))))
+         (assoc :processing-results :done)))))
 
 (re-frame/reg-event-fx
  ::process-results

@@ -123,6 +123,9 @@
 
 ;; Tables
 
+(def delete-icon
+  [:span {:class "fas fa-times"}])
+
 (defn table-field-input-el [table id column val type & colour]
   [:td {:class "px-6 py-4"}
    [:input (merge {:type type
@@ -151,7 +154,7 @@
      [table-field-select-el :party id :colour colour styles/party-colours-list]
      [:td
       [:button {:disabled (when (some #{id} active-party-ids) true)
-                :on-click #(re-frame/dispatch [::events/delete-inputs :party id])} "X"]]]))
+                :on-click #(re-frame/dispatch [::events/delete-inputs :party id])} delete-icon]]]))
 
 (defn candidate-table-form-row [[id {:keys [name popularity party-id]}]]
   (let [party-data @(re-frame/subscribe [::subs/inputs :party party-id])
@@ -163,7 +166,7 @@
      [table-field-select-el :candidate id :party p-name active-parties :party-id]
      [table-field-input-el :candidate id :popularity popularity "number"]
      [:td
-      [:button {:on-click #(re-frame/dispatch [::events/delete-inputs :candidate id])} "X"]]]))
+      [:button {:on-click #(re-frame/dispatch [::events/delete-inputs :candidate id])} delete-icon]]]))
 
 
 (defn table-form-component [col-headings row-data caption-title caption-text form-type]
