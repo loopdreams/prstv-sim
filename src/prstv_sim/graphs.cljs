@@ -5,110 +5,38 @@
             [prstv-sim.inputs :as inputs]
             [clojure.set :as set]
             ["chart.js" :refer (Chart)]
-            ["chartjs-chart-sankey" :as sankey :refer (SankeyController Flow)]
+            ["chartjs-chart-sankey" :as sankey]
             ["chartjs-plugin-annotation" :as annotationPlugin]
             [prstv-sim.styles :as styles]))
 
-;; (. chartjs/Chart (register sankey))
-;; (. chartjs/Chart (register annotationPlugin))
-
-;; (def Chart (.-Chart (js/require "chart.js")))
-
-;; (def SankeyController (.-SankeyController (js/require "chartjs-chart-sankey")))
-
-
-
-
-;; ;; TODO make font size dynamic
-;; (defn graph-spec-candidates-vega [vals colours scale]
-;;   (println vals)
-;;   {:$schema "https://vega.github.io/schema/vega-lite/v5.json"
-;;    :data {:values vals}
-;;    :width "container"
-;;    :height 400
-;;    :config {:axis {:titleFontSize scale
-;;                    :labelFontSize scale}
-;;             :legend {:titleFontSize scale
-;;                      :labelFontSize scale}}
-;;    :title nil
-;;    :layer [{:mark {:type "bar"
-;;                    :tooltip true}
-;;             :encoding {:x
-;;                        {:field :name
-;;                         :type "nominal"
-;;                         :title nil
-;;                         :sort "-y"
-;;                         :axis
-;;                         {:labelAngle 0
-;;                          :ticks false}}
-;;                        :y
-;;                        {:field :percent
-;;                         :type "quantitative"
-;;                         :title "Percentage %"}
-;;                        :color
-;;                        {:field :party
-;;                         :type :nominal
-;;                         :title "Party"
-;;                         :scale {:range colours}}}}
-;;            {:mark
-;;             {:type "rule"
-;;              :color "#14b8a6"
-;;              :strokeWidth 4
-;;              :strokeDash [8,8]}
-;;             :encoding {:y
-;;                        {:field :quota
-;;                         :type :quantitative}}}]})
-
-;; (defn graph-spec-parties-vega [vals colours]
-;;   {:$schema "https://vega.github.io/schema/vega-lite/v5.json"
-;;    :data {:values vals}
-;;    :width "container"
-;;    :config {:axis {:titleFontSize 14
-;;                    :labelFontSize 14}
-;;             :legend {:titleFontSize 14
-;;                      :labelFontSize 14}}
-;;    :title nil
-;;    :mark {:type "bar"
-;;           :tooltip true}
-;;    :encoding {:x
-;;               {:field :name
-;;                :type "nominal"
-;;                :title nil
-;;                :axis
-;;                {:labelAngle 0
-;;                 :ticks false}}
-;;               :y
-;;               {:field :percent
-;;                :type "quantitative"
-;;                :title "Percentage %"}
-;;               :color
-;;               {:field :name
-;;                :title nil
-;;                :type :nominal
-;;                :scale {:range colours}}}})
 
 (defn vega-spec-data->chartjs [vega-data]
   (let [sorted  (reverse (sort-by :percent vega-data))
         vals    (map :percent sorted)
         labels  (map :name sorted)
-        colours (map (comp styles/colour-styles :colour) sorted)]
+        colours (map (comp styles/colour-styles :colour) sorted)
+        quota   (:quota (first vega-data))]
     {:labels labels
      :datasets {:data vals
-                :backgroundColor colours}}))
+                :backgroundColor colours}
+     :quota quota}))
 
-(defn graph-spec-candidates-chartjs [{:keys [labels datasets]}]
+;; TODO style quota line
+(defn graph-spec-candidates-chartjs [{:keys [labels datasets quota]}]
+  (println quota)
   {:type "bar"
    :data {:labels labels
           :datasets [{:data (:data datasets)
                       :backgroundColor (:backgroundColor datasets)
                       :borderWidth 1}]}
    :options
-   {:plugins {:annotation
+   {:plugins {:legend {:display false}
+              :annotation
               {:annotations
                {:line1
                 {:type "line"
-                 :yMin 16
-                 :yMax 16}}}}}})
+                 :yMin quota
+                 :yMax quota}}}}}})
 
 (defn graph-spec-parties-chartjs [{:keys [labels datasets]}]
   {:type "bar"
@@ -160,26 +88,6 @@
    [:div
     [:p "★ Elected"]
     [:p [:span {:class "font-extrabold text-teal-500"} "- - - -"] " Quota"]]])
-
-
-#_(defn chart-renderer-parties [spec]
-    (reagent/create-class
-     {:reagent-render (fn [] [:div
-                              [:h2 {:class styles/table-caption} "Parties - First Preference Votes"]
-                              [:div#visParties {:class "overflow-x-auto w-full"}]])
-      :component-did-mount (fn [_]
-                             (js/vegaEmbed "#visParties" (clj->js spec)))
-      :component-did-update (fn [comp] (js/vegaEmbed "#visParties" (clj->js (reagent/props comp))))}))
-
-#_(defn chart-renderer-candidates [spec]
-    (reagent/create-class
-     {:reagent-render (fn [] [:div
-                              [:h2 {:class styles/table-caption} "Candidates - First Preference Votes"]
-                              [:div#visCand {:class "overflow-x-auto w-full"}]
-                              [candidate-chart-legend]])
-      :component-did-mount (fn [_]
-                             (js/vegaEmbed "#visCand" (clj->js spec)))
-      :component-did-update (fn [comp] (js/vegaEmbed "#visCand" (clj->js (reagent/props comp))))}))
 
 
 (defn reset-canvas! [id container-id]
@@ -252,33 +160,8 @@
     (for [id order]
       (styles/colour-styles (party-colours id)))))
 
-#_(defn chart-candidates []
-    (let [results (re-frame/subscribe [::subs/results])
-          config (re-frame/subscribe [::subs/vote-config])
-          results-state @(re-frame/subscribe [::subs/results-loading?])
-          graph-colours (order-party-colours-for-chart @config)]
-      (if (= results-state :done)
-        (fn []
-          (let [scale (if (< (.. js/document -documentElement -clientWidth) 800)
-                        8 14)
-                data (-> (graph-create-candidate-vals @config @results)
-                         (graph-spec-candidates-vega graph-colours scale))]
-            [chart-renderer-candidates data]))
-        [:div])))
 
-
-#_(defn chart-parties []
-    (let [results (re-frame/subscribe [::subs/results])
-          config (re-frame/subscribe [::subs/vote-config])
-          results-state @(re-frame/subscribe [::subs/results-loading?])
-          graph-colours (order-party-colours-for-chart @config)]
-      (if (= results-state :done)
-        (let [data (-> (graph-create-party-vals @config @results)
-                       (graph-spec-parties-vega graph-colours))]
-          [chart-renderer-parties data])
-        [:div])))
-
-
+;; Sankey Chart
 (defn append-count-keyword [kw count]
   (keyword (str (name kw) "-" count)))
 
@@ -304,9 +187,6 @@
       (reset-canvas! "sankey-chart" "sankey-chart-container")
       (let [ctx (.getContext (.getElementById js/document "sankey-chart") "2d")]
         (Chart. ctx (clj->js (reagent/props comp)))))}))
-
-
-
 
 (defn chartjs-sankey []
   (let [results         (re-frame/subscribe [::subs/results])
