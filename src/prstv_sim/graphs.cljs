@@ -153,7 +153,9 @@
         (let [data (-> (graph-create-candidate-vals @config @results)
                        (vega-spec-data->chartjs)
                        (graph-spec-candidates))]
-          [chart-candidates data]))
+          [:div
+           [:h2 {:class "p-5 text-lg font-semibold text-left rtl:text-right text-gray-900 bg-white dark:text-white dark:bg-gray-800"} "Candidate First Preference Votes"]
+           [chart-candidates data]]))
       [:div])))
 
 ;; Parties
@@ -183,7 +185,9 @@
         (let [data (-> (graph-create-party-vals @config @results)
                        (vega-spec-data->chartjs)
                        (graph-spec-parties))]
-          [chart-parties data]))
+          [:div
+           [:h2 {:class "p-5 text-lg font-semibold text-left rtl:text-right text-gray-900 bg-white dark:text-white dark:bg-gray-800"} "Party First Preference Votes"]
+           [chart-parties data]]))
       [:div])))
 
 ;; Sankey Chart

@@ -126,6 +126,10 @@
 (def delete-icon
   [:span {:class "fas fa-times"}])
 
+(def delete-icon-disabled
+  [:span {:class "fas fa-times"
+          :style {:color "#e2e8f0"} }])
+
 (defn table-field-input-el [table id column val type & colour]
   [:td {:class "px-6 py-4"}
    [:input (merge {:type type
@@ -154,7 +158,8 @@
      [table-field-select-el :party id :colour colour styles/party-colours-list]
      [:td
       [:button {:disabled (when (some #{id} active-party-ids) true)
-                :on-click #(re-frame/dispatch [::events/delete-inputs :party id])} delete-icon]]]))
+                :on-click #(re-frame/dispatch [::events/delete-inputs :party id])}
+       (if (some #{id} active-party-ids) delete-icon-disabled delete-icon)]]]))
 
 (defn candidate-table-form-row [[id {:keys [name popularity party-id]}]]
   (let [party-data @(re-frame/subscribe [::subs/inputs :party party-id])
