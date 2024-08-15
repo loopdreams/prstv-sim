@@ -99,3 +99,8 @@
  (fn [{db :db} [_ vote-config candidates my-ballot ballot-id seats]]
    {:dispatch ^:flush-dom [::calculate-results vote-config candidates my-ballot ballot-id seats]
     :db (assoc db :processing-results :loading)}))
+
+(re-frame/reg-event-db
+ ::sankey-selector
+ (fn [db [_ cand count-no]]
+   (assoc db :sankey-selector [cand count-no])))

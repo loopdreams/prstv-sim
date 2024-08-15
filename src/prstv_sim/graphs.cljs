@@ -4,11 +4,19 @@
             [prstv-sim.subs :as subs]
             [prstv-sim.inputs :as inputs]
             [clojure.set :as set]
-            ["chart.js" :as chartjs]
+            ["chart.js" :refer (Chart)]
             ["chartjs-chart-sankey" :as sankey :refer (SankeyController Flow)]
+            ["chartjs-plugin-annotation" :as annotationPlugin]
             [prstv-sim.styles :as styles]))
 
-;; (. chartjs/Chart (register SankeyController Flow))
+;; (. chartjs/Chart (register sankey))
+;; (. chartjs/Chart (register annotationPlugin))
+
+;; (def Chart (.-Chart (js/require "chart.js")))
+
+;; (def SankeyController (.-SankeyController (js/require "chartjs-chart-sankey")))
+
+
 
 
 ;; ;; TODO make font size dynamic
@@ -95,15 +103,12 @@
                       :backgroundColor (:backgroundColor datasets)
                       :borderWidth 1}]}
    :options
-   {:plugins {:legend {:display false}}}})
-              ;; :annotation
-              ;; {:annotations
-              ;;  {:line1
-              ;;   {:type "line"
-              ;;    :yMin 16
-              ;;    :yMax 16
-              ;;    :borderWidth 2
-              ;;    :borderColor "Red"}}}}}})
+   {:plugins {:annotation
+              {:annotations
+               {:line1
+                {:type "line"
+                 :yMin 16
+                 :yMax 16}}}}}})
 
 (defn graph-spec-parties-chartjs [{:keys [labels datasets]}]
   {:type "bar"
@@ -194,12 +199,12 @@
      {:reagent-render (fn [] [:div {:id container-id} [:canvas {:id canvas-id}]])
       :component-did-mount (fn [_]
                              (let [ctx (.getContext (.getElementById js/document canvas-id) "2d")]
-                               (js/Chart. ctx (clj->js spec))))
+                               (Chart. ctx (clj->js spec))))
       :component-did-update
       (fn [comp]
         (reset-canvas! canvas-id container-id)
         (let [ctx (.getContext (.getElementById js/document canvas-id) "2d")]
-          (js/Chart. ctx (clj->js (reagent/props comp)))))})))
+          (Chart. ctx (clj->js (reagent/props comp)))))})))
 
 (defn chart-js-parties [spec]
   (let [canvas-id "chart-parties"
@@ -208,12 +213,12 @@
      {:reagent-render (fn [] [:div {:id container-id} [:canvas {:id canvas-id}]])
       :component-did-mount (fn [_]
                              (let [ctx (.getContext (.getElementById js/document canvas-id) "2d")]
-                               (js/Chart. ctx (clj->js spec))))
+                               (Chart. ctx (clj->js spec))))
       :component-did-update
       (fn [comp]
         (reset-canvas! canvas-id container-id)
         (let [ctx (.getContext (.getElementById js/document canvas-id) "2d")]
-          (js/Chart. ctx (clj->js (reagent/props comp)))))})))
+          (Chart. ctx (clj->js (reagent/props comp)))))})))
 
 
 (defn chart-js-candidates-wrapper []
@@ -274,54 +279,59 @@
         [:div])))
 
 
-;; (defn append-count-keyword [kw count]
-;;   (keyword (str (name kw) "-" count)))
+(defn append-count-keyword [kw count]
+  (keyword (str (name kw) "-" count)))
 
-;; (defn sankey-data-from [to-candidate from-data]
-;;   (map (fn [[name vs]] {:from name :to to-candidate :flow vs}) from-data))
+(defn sankey-data-from [to-candidate from-data]
+  (map (fn [[name vs]] {:from name :to to-candidate :flow vs}) from-data))
 
-;; (defn sankey-data-to [from-candidate to-data]
-;;   (map (fn [[name vs]] {:from from-candidate :to name :flow vs}) to-data))
+(defn sankey-data-to [from-candidate to-data]
+  (map (fn [[name vs]] {:from from-candidate :to name :flow vs}) to-data))
 
-;; (defn sankey-chart-structure [data]
-;;   {:type "sankey"
-;;    :data {:datasets [{:data data}]}})
-
-
-;; (defn sankey-chart-renderer [spec]
-;;   (reagent/create-class
-;;    {:reagent-render (fn [] [:div {:id "sankey-chart-container"} [:canvas {:id "sankey-chart"}]])
-;;     :component-did-mount (fn [_]
-;;                            (let [ctx (.getContext (.getElementById js/document "sankey-chart") "2d")]
-;;                              (js/Chart. ctx (clj->js spec))))
-;;     :component-did-update
-;;     (fn [comp]
-;;       (reset-canvas! "sankey-chart" "sankey-chart-container")
-;;       (let [ctx (.getContext (.getElementById js/document "sankey-chart") "2d")]
-;;         (js/Chart. ctx (clj->js (reagent/props comp)))))}))
+(defn sankey-chart-structure [data]
+  {:type "sankey"
+   :data {:datasets [{:data data}]}})
 
 
-;; (defn chartjs-sankey [candidate count]
-;;   (let [results       (re-frame/subscribe [::subs/results])
-;;         ;; ballots       @(re-frame/subscribe [::subs/all-ballots])
-;;         results-state @(re-frame/subscribe [::subs/results-loading?])]
-;;     (if (= results-state :done)
-;;       (fn []
-;;         (let [c-data             (:c-data @results)
-;;               get-piles          (fn [n] (-> ((:counts c-data) n) :piles))
-;;               cur-count          (get-piles count)
-;;               next-count         (get-piles (inc count))
-;;               prev-count         (get-piles (dec count))
-;;               tracked-ballots    (cur-count candidate)
-;;               gather-count-data  (fn [piles count]
-;;                                    (reduce (fn [result ballot-id]
-;;                                              (let [cand (-> (filter (fn [[_ ids]] (some #{ballot-id} ids)) piles)
-;;                                                             ffirst
-;;                                                             (append-count-keyword count))]
-;;                                                (update result cand (fnil inc 0))))
-;;                                            {} tracked-ballots))
-;;               prev-count-tracked (sankey-data-from (append-count-keyword candidate count) (gather-count-data prev-count (dec count)))
-;;               next-count-tracked (sankey-data-to (append-count-keyword candidate count) (gather-count-data next-count (inc count)))
-;;               spec (sankey-chart-structure (concat prev-count-tracked next-count-tracked))]
-;;           [sankey-chart-renderer spec]))
-;;       [:div])))
+(defn sankey-chart-renderer [spec]
+  (reagent/create-class
+   {:reagent-render (fn [] [:div {:id "sankey-chart-container"} [:canvas {:id "sankey-chart"}]])
+    :component-did-mount (fn [_]
+                           (let [ctx (.getContext (.getElementById js/document "sankey-chart") "2d")]
+                             (Chart. ctx (clj->js spec))))
+    :component-did-update
+    (fn [comp]
+      (reset-canvas! "sankey-chart" "sankey-chart-container")
+      (let [ctx (.getContext (.getElementById js/document "sankey-chart") "2d")]
+        (Chart. ctx (clj->js (reagent/props comp)))))}))
+
+
+
+
+(defn chartjs-sankey []
+  (let [results         (re-frame/subscribe [::subs/results])
+        sankey-selector (re-frame/subscribe [::subs/sankey-selector])]
+    (when @sankey-selector
+      (fn []
+        (let [[candidate count] @sankey-selector
+              c-data              (:c-data @results)
+              get-piles           (fn [n] (-> ((:counts c-data) n) :piles))
+              cur-count           (get-piles count)
+              next-count          (get-piles (inc count))
+              prev-count          (get-piles (dec count))
+              tracked-ballots     (cur-count candidate)
+              gather-count-data   (fn [piles count]
+                                    (reduce (fn [result ballot-id]
+                                              (let [cand (-> (filter (fn [[_ ids]] (some #{ballot-id} ids)) piles)
+                                                             ffirst
+                                                             (append-count-keyword count))]
+                                                (update result cand (fnil inc 0))))
+                                            {} tracked-ballots))
+                prev-count-tracked  (sankey-data-from (append-count-keyword candidate count) (gather-count-data prev-count (dec count)))
+                next-count-tracked  (sankey-data-to (append-count-keyword candidate count) (gather-count-data next-count (inc count)))
+                spec                (sankey-chart-structure (concat prev-count-tracked next-count-tracked))]
+            (if candidate
+              [sankey-chart-renderer spec]
+              [:div]))))))
+
+

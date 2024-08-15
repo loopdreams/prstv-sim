@@ -64,12 +64,14 @@
 (def eliminated-colours "font-bold bg-red-100 text-red-500")
 (def my-ballot-icon "fas fa-scroll")
 
-(defn format-count-table-cell [{:keys [count count-change elected eliminated marked-ballot]}]
-  [:td {:class (str "px-2 "
-                    (cond
-                      elected elected-colours
-                      eliminated eliminated-colours
-                      :else ""))}
+(defn format-count-table-cell [{:keys [count count-change elected eliminated marked-ballot candidate nth-col]}]
+  [:td
+   {:class (str "px-2 "
+                (cond
+                  elected elected-colours
+                  eliminated eliminated-colours
+                  :else ""))
+    :on-click #(re-frame/dispatch [::events/sankey-selector candidate nth-col])}
    count
    (when count-change
      [:span {:class "text-stone-400"} (str " (+ " count-change ")")])
@@ -85,7 +87,9 @@
     (if (not count)
       [:td ""]
       [format-count-table-cell
-       {:count count
+       {:nth-col nth-col
+        :candidate candidate
+        :count count
         :count-change count-change
         :elected (when (= exit-at (inc nth-col)) (elected candidate))
         :eliminated (and (= exit-at (inc nth-col)) (not (elected candidate)))

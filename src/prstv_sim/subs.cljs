@@ -91,3 +91,7 @@
  (fn [db]
    (:results db)))
 
+(re-frame/reg-sub
+ ::sankey-selector
+ (fn [db]
+   (:sankey-selector db)))

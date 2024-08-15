@@ -27,7 +27,7 @@
 (defn results-display []
   [:div
    [results/generate-results-button]
-   ;; [graphs/chartjs-sankey :snow-white 2]
+   ;; [graphs/chartjs-sankey :minnie-mouse 4]
 
    (let [loading? @(re-frame/subscribe [::subs/results-loading?])]
      (case loading?
@@ -39,6 +39,7 @@
                  [graphs/chart-js-parties-wrapper]]
                 ;; [results/party-first-prefs-table first-prefs]
                 [results/vote-counts-table results]
+                [graphs/chartjs-sankey]
                 [graphs/chart-js-candidates-wrapper]])
        [:div]))])
 
