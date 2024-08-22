@@ -91,7 +91,11 @@
                  :xValue (dec (count (:data datasets)))
                  :yValue (inc quota)
                  :content ["Quota"]
-                 :color "#0d9488"}}}}}})
+                 :color "#0d9488"}}}}
+    :scales {:y
+             {:title
+              {:display true
+               :text "Percentage (%)"}}}}})
 
 (defn graph-spec-parties [{:keys [labels datasets]}]
   {:type "bar"
@@ -99,7 +103,11 @@
           :datasets [{:data (:data datasets)
                       :backgroundColor (:backgroundColor datasets)
                       :borderWidth 1}]}
-   :options {:plugins {:legend {:display false}}}})
+   :options {:plugins {:legend {:display false}}
+             :scales {:y
+                      {:title
+                       {:display true
+                        :text "Percentage (%)"}}}}})
 
 
 (defn graph-spec-sankey [cfg data]
@@ -109,13 +117,6 @@
                       :colorTo (map (comp (partial sankey-get-color cfg) :to) data)}]}})
 
 
-
-
-#_(defn candidate-chart-legend []
-    [:div {:class "flex justify-center items-center pt-5"}
-     [:div
-      [:p "★ Elected"]
-      [:p [:span {:class "font-extrabold text-teal-500"} "- - - -"] " Quota"]]])
 
 
 (defn reset-canvas! [id container-id]
