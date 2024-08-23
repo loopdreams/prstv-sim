@@ -5,7 +5,8 @@
    [prstv-sim.graphs :as graphs]
    [prstv-sim.inputs :as inputs]
    [prstv-sim.results-display :as results]
-   [reagent.core :as reagent]))
+   [reagent.core :as reagent]
+   [prstv-sim.styles :as styles]))
 
 
 
@@ -18,7 +19,7 @@
    [inputs/preconfig-options-selector]])
 
 (defn main-views-wrapper [comp]
-  [:div.py-6 comp])
+  [:div {:class "py-6"} comp])
 
 
 (defn spinner []
@@ -32,14 +33,14 @@
      (case loading?
        :loading [:div.box [spinner]]
        :done (let [{:keys [elected c-data] :as results} @(re-frame/subscribe [::subs/results])]
-               [:div {:class "overflow-x-auto"}
-                [:div {:class "grid md:grid-cols-2 gap-4 mb-6 grid-cols-1"}
-                 [results/elected-display elected]
-                 [graphs/chart-parties-wrapper]]
+               [:div
+                [results/elected-display elected]
+                [:div {:class "flex flex-row flex-wrap"}
+                 [graphs/chart-parties-wrapper]
+                 [graphs/chart-candidates-wrapper]]
                 [results/vote-counts-table results]
                 [graphs/candidate-sankey]
-                [graphs/all-candidates-sankey-chart]
-                [graphs/chart-candidates-wrapper]])
+                [graphs/all-candidates-sankey-chart]])
        [:div]))])
 
 
@@ -47,11 +48,11 @@
 (defn nav-tabs [menu-class tab-list]
   (let [active-tab (reagent/atom (:key (first tab-list)))]
     (fn []
-      [:div.section.has-background-white
+      [:div
        [:div {:class menu-class}
         (into [:ul {:class "flex flex-wrap -mb-px"}]
               (map (fn [{:keys [key label]}]
-                     [:li {:class "inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300 cursor-pointer"
+                     [:li {:class (if (= @active-tab key) styles/active-tab styles/inactive-tab)
                            :aria-current (when (= @active-tab key) "page")
                            :on-click #(reset! active-tab key)}
                       [:a
@@ -81,7 +82,7 @@
 
 (defn header-panel []
   [:div
-   [:h2 {:class "mb-4 text-4xl tracking-tight font-bold text-gray-900 dark:text-white"}
+   [:h2 {:class "mb-4 text-4xl tracking-tight font-sans font-bold text-gray-900 dark:text-white"}
     "Single Transferrable Vote Simulator"]
    [:p {:class "mb-4 font-light"} "Subtitle..."]])
 
