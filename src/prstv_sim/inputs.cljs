@@ -128,10 +128,10 @@
 
 (def delete-icon-disabled
   [:span {:class "fas fa-times"
-          :style {:color "#e2e8f0"} }])
+          :style {:color "#e2e8f0"}}])
 
 (defn table-field-input-el [table id column val type & colour]
-  [:td {:class "px-6 py-4"}
+  [:td {:class "px-6 py-1"}
    [:input (merge {:type type
                    :class styles/default-input-field
                    :placeholder "Enter Name"
@@ -140,7 +140,7 @@
                   (when colour (styles/get-colour-style (first colour))))]])
 
 (defn table-field-select-el [table id column val options & party-id]
-  [:td {:class "px-6 py-4"}
+  [:td {:class "px-6 py-1"}
    [:form {:class "max-w-sm mx-auto"}
     (into
      [:select {:class styles/drop-down-select
