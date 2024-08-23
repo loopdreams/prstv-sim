@@ -70,16 +70,28 @@
      (-> updated-db-ballot
          (assoc :available-preferences available-prefs)))))
 
-(re-frame/reg-event-db
- ::add-vote-config
- (fn [db [_ config]]
-   (-> db
-       (assoc :vote-config config)
-       (assoc :results nil)
-       (assoc :processing-results nil)
-       (assoc :my-ballot? nil)
-       (assoc :my-ballot nil)
-       (assoc :sankey-selector nil))))
+(re-frame/reg-fx
+ :config-confirmation-msg
+ (fn [_]
+   (let [el (js/document.getElementById "config-added-confirmation")]
+     (js/setTimeout
+      (fn []
+        (set! (.-display (.-style el)) "none"))
+      2000)
+     (set! (.-display (.-style el)) "block"))))
+
+(re-frame/reg-event-fx
+ ::add-vote-config-fx
+ (fn [{db :db} [_ config]]
+   {:db (-> db
+            (assoc :vote-config config)
+            (assoc :results nil)
+            (assoc :processing-results nil)
+            (assoc :my-ballot? nil)
+            (assoc :my-ballot nil)
+            (assoc :sankey-selector nil)
+            (assoc :sankey-show? false))
+    :config-confirmation-msg nil}))
 
 (re-frame/reg-event-db
  ::calculate-results
@@ -99,6 +111,21 @@
  (fn [{db :db} [_ vote-config candidates my-ballot ballot-id seats]]
    {:dispatch ^:flush-dom [::calculate-results vote-config candidates my-ballot ballot-id seats]
     :db (assoc db :processing-results :loading)}))
+
+
+(re-frame/reg-event-db
+ ::sankey-show-toggle
+ (fn [db]
+   (let [cur (:sankey-show? db)]
+     (-> db
+         (assoc :sankey-show? (if cur false true))
+         (assoc :processing-sankey-chart :done)))))
+
+(re-frame/reg-event-fx
+ ::process-sankey-chart
+ (fn [{db :db} _]
+   {:dispatch ^:flush-dom [::sankey-show-toggle]
+    :db (assoc db :processing-sankey-chart :loading)}))
 
 (re-frame/reg-event-db
  ::sankey-selector

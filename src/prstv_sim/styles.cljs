@@ -29,6 +29,11 @@
                (assoc-in data [:style :color] (colour-styles "White")))]
     (assoc-in data [:style :background-color] (colour-styles key))))
 
+
+(defn spinner []
+  [:div
+   [:div#spinner.lds-ring [:div] [:div] [:div] [:div]]])
+
 (comment
   (get-colour-style "Black"))
 
@@ -41,6 +46,8 @@
 (def default-h2 "font-semibold text-lg py-3")
 
 (def default-button "disabled:cursor-not-allowed disabled:opacity-25 text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700")
+
+(def special-button "disabled:cursor-not-allowed disabled:opacity-25 font-bold text-teal-50 bg-teal-500 border border-gray-300 focus:outline-none hover:bg-teal-400 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700")
 
 (def default-button-disabled "text-white bg-blue-400 dark:bg-blue-500 cursor-not-allowed font-medium rounded-lg text-sm px-5 py-2.5 text-center")
 
@@ -58,7 +65,7 @@
 
 (def caution-text "p-4 mb-4 text-sm text-yellow-800 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300")
 
-(def table-outer-div "relative overflow-x-auto shadow-md sm:rounded-lg")
+(def table-outer-div "relative overflow-x-auto shadow-md sm:rounded-lg pb-5")
 
 (def table-el "w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400")
 

@@ -45,7 +45,7 @@
     [:div
      [:h2 {:class "p-5 text-lg font-semibold text-left rtl:text-right text-gray-900 bg-white dark:text-white dark:bg-gray-800"} "Elected:"]
      (into
-      [:div {:class "px-5 grid grid-cols-1 gap-4 content-between"}]
+      [:div {:class "px-5 flex flex-row flex-wrap gap-4 content-between"}]
       (map #(elected-candidate-display % vote-config) elected))]))
 
 

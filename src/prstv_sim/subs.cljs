@@ -95,3 +95,13 @@
  ::sankey-selector
  (fn [db]
    (:sankey-selector db)))
+
+(re-frame/reg-sub
+ ::sankey-show?
+ (fn [db]
+   (:sankey-show? db)))
+
+(re-frame/reg-sub
+ ::processing-sankey-chart
+ (fn [db]
+   (:processing-sankey-chart db)))

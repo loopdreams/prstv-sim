@@ -112,7 +112,7 @@
 
 
 (defn set-vote-params []
-  [:div
+  [:div {:class "px-4 border mt-2"}
    [:h2 {:class styles/default-h2} "Vote Parameters"]
    [:form
     [set-number-of-votes]
@@ -266,7 +266,7 @@
    name])
 
 (defn preconfig-options-selector []
-  [:div
+  [:div {:class "px-4 border mt-2"}
    [:h2 {:class styles/default-h2} "Configuration Profiles"]
    (conj
     (into [:div]
@@ -343,13 +343,19 @@
                           :volatility           (parse-long volatility)
                           :volatility-pp        5}] ;; TODO set this somewhere else...
 
-          [:div
-           [:button
-            {:class styles/default-button
-             :disabled (not (valid-inputs? n-seats n-votes candidate))
-             :on-click #(re-frame/dispatch [::events/add-vote-config vote-config])}
-            "Add Vote Config"]
-           (when (or (not (every? #(contains? % :name) (vals candidate)))
-                     (not (every? #(contains? % :party-id) (vals candidate))))
-             [:div {:class styles/warning-text}
-              "Incomplete information for a Candidate in the Candidate Table"])]))))
+        [:div {:class "flex flex-col justify-center"}
+         [:div {:class "m-auto pt-4"}
+          [:button
+           {:class styles/special-button
+            :disabled (not (valid-inputs? n-seats n-votes candidate))
+            :on-click #(re-frame/dispatch [::events/add-vote-config-fx vote-config])}
+           "Add Vote Config"]]
+         (when (or (not (every? #(contains? % :name) (vals candidate)))
+                   (not (every? #(contains? % :party-id) (vals candidate))))
+           [:div {:class (str styles/warning-text " text-center")}
+            "Incomplete information for a Candidate in the Candidate Table"])
+         [:div {:class "h-6"}
+          [:span {:id "config-added-confirmation"
+                  :class "text-center text-teal-600"
+                  :style {:display "none"}}
+           "Vote Config Added Successfully!"]]]))))

@@ -6,6 +6,7 @@
    [prstv-sim.inputs :as inputs]
    [prstv-sim.styles :as styles]
    [prstv-sim.subs :as subs]
+   [prstv-sim.events :as events]
    [re-frame.core :as re-frame]
    [reagent.core :as reagent]))
 
@@ -154,7 +155,7 @@
         (let [data (-> (graph-create-candidate-vals @config @results)
                        (vega-spec-data->chartjs)
                        (graph-spec-candidates))]
-          [:div
+          [:div {:class "basis-1/2"}
            [:h2 {:class "p-5 text-lg font-semibold text-left rtl:text-right text-gray-900 bg-white dark:text-white dark:bg-gray-800"} "Candidate First Preference Votes"]
            [chart-candidates data]]))
       [:div])))
@@ -186,7 +187,7 @@
         (let [data (-> (graph-create-party-vals @config @results)
                        (vega-spec-data->chartjs)
                        (graph-spec-parties))]
-          [:div
+          [:div {:class "basis-1/2"}
            [:h2 {:class "p-5 text-lg font-semibold text-left rtl:text-right text-gray-900 bg-white dark:text-white dark:bg-gray-800"} "Party First Preference Votes"]
            [chart-parties data]]))
       [:div])))
@@ -314,13 +315,29 @@
                             (graph-spec-sankey cfg))]
           [sankey-chart-renderer spec "candidate-sankey-container" "candidate-sankey-canvas"])))))
 
+
+
 (defn all-candidates-sankey-chart []
   (let [results         (re-frame/subscribe [::subs/results])
-        vote-config     (re-frame/subscribe [::subs/vote-config])]
+        vote-config     (re-frame/subscribe [::subs/vote-config])
+        sankey-show?     (re-frame/subscribe [::subs/sankey-show?])]
     (when @results
       (fn []
-        (let [c-data   (:c-data @results)
-              cfg      @vote-config
-              spec     (->> (all-candidates-sankey c-data (:candidates @vote-config))
-                            (graph-spec-sankey cfg))]
-          [sankey-chart-renderer spec "all-sankey-container" "all-sankey-canvas"])))))
+        (let [sankey-show? @(re-frame/subscribe [::subs/sankey-show?])]
+          (if sankey-show?
+            (let [c-data   (:c-data @results)
+                  cfg      @vote-config
+                  spec     (->> (all-candidates-sankey c-data (:candidates @vote-config))
+                                (graph-spec-sankey cfg))]
+              [sankey-chart-renderer spec "all-sankey-container" "all-sankey-canvas"])
+            [:div]))))))
+
+
+(defn all-candidates-sankey-toggle []
+  (let [show? @(re-frame/subscribe [::subs/sankey-show?])
+        status (re-frame/subscribe [::subs/processing-sankey-chart])]
+    [:button {:class "w-full text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700"
+              :on-click #(re-frame/dispatch [::events/process-sankey-chart])}
+     (if show? [:span {:class "fas fa-caret-down pr-2 text-lg"}] [:span {:class "fas fa-caret-right pr-2 text-lg"}])
+     (if show? "Hide vote flows" "Show vote flows for all candidates")
+     (when (= @status :loading) [styles/spinner])]))

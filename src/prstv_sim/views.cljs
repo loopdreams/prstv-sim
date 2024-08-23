@@ -12,18 +12,14 @@
 
 (defn inputs-panel []
   [:div
-   [inputs/inputs->vote-config]
    [inputs/party-table-form]
    [inputs/candidate-table-form]
    [inputs/set-vote-params]
-   [inputs/preconfig-options-selector]])
+   [inputs/preconfig-options-selector]
+   [inputs/inputs->vote-config]])
 
 (defn main-views-wrapper [comp]
   [:div {:class "py-6"} comp])
-
-
-(defn spinner []
-  [:div#spinner.lds-ring [:div] [:div] [:div] [:div]])
 
 (defn results-display []
   [:div
@@ -31,7 +27,7 @@
 
    (let [loading? @(re-frame/subscribe [::subs/results-loading?])]
      (case loading?
-       :loading [:div.box [spinner]]
+       :loading [styles/spinner]
        :done (let [{:keys [elected c-data] :as results} @(re-frame/subscribe [::subs/results])]
                [:div
                 [results/elected-display elected]
@@ -40,6 +36,7 @@
                  [graphs/chart-candidates-wrapper]]
                 [results/vote-counts-table results]
                 [graphs/candidate-sankey]
+                [graphs/all-candidates-sankey-toggle]
                 [graphs/all-candidates-sankey-chart]])
        [:div]))])
 
