@@ -37,7 +37,7 @@
   (let [party-id (-> candidate candidate-party)
         party-name (-> party-id party-names)]
     [:div (merge (styles/get-colour-style (party-colours party-id))
-                 {:class "py-4 px-4 rounded-lg text-bold"})
+                 {:class "py-2 px-4 rounded-lg text-bold"})
      (str (inputs/keyword->name candidate) " (" party-name ")")]))
 
 (defn elected-display [elected]
@@ -71,7 +71,7 @@
                   elected elected-colours
                   eliminated eliminated-colours
                   :else ""))
-    :on-click #(re-frame/dispatch [::events/sankey-selector candidate nth-col])}
+    :on-click #(re-frame/dispatch [::events/sankey-selector candidate])}
    count
    (when count-change
      [:span {:class "text-stone-400"} (str " (+ " count-change ")")])
@@ -108,8 +108,11 @@
     [:tr
      [:th {:class "px-2 py-2"} (when (some #{position} (range seats)) (inc position))]
      ;; [:td (merge {:class "px-2 py-2"} (styles/get-colour-style party-colour)) party-name]
-     [:td (party-icon party-colour) (str " " party-name)]
-     [:th (merge {:class "px-2 py-2"}) (inputs/keyword->name candidate)]
+     [:td
+      (party-icon party-colour) (str " " party-name)]
+     [:th (merge {:class "px-2 py-2 cursor-pointer"
+                  :on-click #(re-frame/dispatch [::events/sankey-selector candidate])})
+      (inputs/keyword->name candidate)]
      [:td {:class "px-2 py-2"} (str (candidate candidate-shares) " %")]
      (map (fn [n] (count-n-data-row candidate n counts-data table-data elected)) (keys counts-data))]))
 

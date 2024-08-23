@@ -37,7 +37,8 @@
                  [results/elected-display elected]
                  [graphs/chart-parties-wrapper]]
                 [results/vote-counts-table results]
-                [graphs/chart-sankey]
+                [graphs/candidate-sankey]
+                [graphs/all-candidates-sankey-chart]
                 [graphs/chart-candidates-wrapper]])
        [:div]))])
 
@@ -50,7 +51,7 @@
        [:div {:class menu-class}
         (into [:ul {:class "flex flex-wrap -mb-px"}]
               (map (fn [{:keys [key label]}]
-                     [:li {:class "inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
+                     [:li {:class "inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300 cursor-pointer"
                            :aria-current (when (= @active-tab key) "page")
                            :on-click #(reset! active-tab key)}
                       [:a

@@ -102,5 +102,5 @@
 
 (re-frame/reg-event-db
  ::sankey-selector
- (fn [db [_ cand count-no]]
-   (assoc db :sankey-selector [cand count-no])))
+ (fn [db [_ cand]]
+   (assoc db :sankey-selector cand)))
