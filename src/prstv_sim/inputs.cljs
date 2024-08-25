@@ -30,8 +30,11 @@
 
 ;; TODO tooltip functionality and content
 (defn hoverable-info-icon [info-text]
-  [:span.icon
-   [:i {:class "fas fa-info-circle" :data-tooltip info-text}]])
+  [:div {:class "inline-block pl-2 w-64"}
+   [styles/tooltip
+    info-text
+    [:span.icon
+     [:i {:class "fas fa-info-circle"}]]]])
 
 ;; Vote Configs
 
@@ -40,9 +43,8 @@
         field-ok (and (seq @value) (valid-number-of-votes?))
         field-warning (> @value n-votes-warning)]
     [:div {:class "mb-6"}
-     [:label {:class (if-not field-ok
-                       styles/warning-label
-                       styles/default-label)} "Number of Votes" [hoverable-info-icon "TODO"]]
+     [:label {:class (if-not field-ok styles/warning-label styles/default-label)} "Number of Votes"
+      [hoverable-info-icon "Set how many total votes will be cast. More votes take much longer to simiulate."]]
      [:div
       [:input
        {:class (if-not field-ok styles/warning-input-field styles/default-input-field)
@@ -63,7 +65,9 @@
     [:div {:class "mb-6"}
      [:label {:class (if-not field-ok
                        styles/warning-label
-                       styles/default-label)} "Number of Seats" [hoverable-info-icon "TODO"]]
+                       styles/default-label)}
+      "Number of Seats"
+      [hoverable-info-icon "Set how many seats are available in the area. Should be less than the number of candidates."]]
      [:div
       [:input
        {:class (if-not field-ok styles/warning-input-field styles/default-input-field)
@@ -94,7 +98,7 @@
 ;; TODO set default radio setting
 (defn set-preference-depth []
   [:div {:class "mb-6"}
-   [:label {:class styles/default-label} "Preference Depth" [hoverable-info-icon "TODO"]]
+   [:label {:class styles/default-label} "Preference Depth" [hoverable-info-icon "Set the weighting for how many preferences people will choose on the ballot. 'Deeper' preferences leads to more possible transfers."]]
    (into
     [:div]
     (for [p preference-depth-options]
@@ -260,7 +264,7 @@
 
 ;; TODO different button style
 (defn preconfig-selector-button [[_ {:keys [name values]}]]
-  [:button.button.is-link.is-outlined
+  [:button
    {:class styles/default-button
     :on-click #(re-frame/dispatch [::events/load-input-config values])}
    name])
@@ -306,7 +310,6 @@
     (every? #(contains? % :party-id) (vals candidates))))
 
 
-
 ;; TODO proper validation here
 ;; TODO User feedback when config is added successfully
 (defn inputs->vote-config []
@@ -315,7 +318,7 @@
                 n-seats
                 party
                 candidate
-                volatility]} @(re-frame/subscribe [::subs/all-inputs])]
+                volatility]} @(re-frame/subscribe [::subs/inputs])]
     (when (and preference-depth n-votes party candidate volatility)
       (let [c-names      (->> (map (fn [[_ {:keys [name]}]] (name->keyword name)) candidate)
                               (into #{}))

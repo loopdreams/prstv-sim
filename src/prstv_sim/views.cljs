@@ -8,6 +8,8 @@
    [reagent.core :as reagent]
    [prstv-sim.styles :as styles]))
 
+(defn main-views-wrapper [comp]
+  [:div {:class "py-6"} comp])
 
 
 (defn inputs-panel []
@@ -18,10 +20,7 @@
    [inputs/preconfig-options-selector]
    [inputs/inputs->vote-config]])
 
-(defn main-views-wrapper [comp]
-  [:div {:class "py-6"} comp])
-
-(defn results-display []
+(defn results-panel []
   [:div
    [results/generate-results-button]
 
@@ -72,7 +71,7 @@
           :component [main-views-wrapper [inputs/user-ballot-form]]}
          {:key :results
           :label "Results"
-          :component [main-views-wrapper [results-display]]}
+          :component [main-views-wrapper [results-panel]]}
          {:key :about
           :label "About"
           :component [main-views-wrapper [:div "About Page TODO"]]})])
@@ -90,4 +89,5 @@
     [:div {:class "max-w-screen-lg text-gray-500 sm:text-lg dark:text-gray-400"}]
     ;; :style {:background-color (inputs/colour-styles "Purple")}}
     [header-panel]
+
     [tab-pages]]])

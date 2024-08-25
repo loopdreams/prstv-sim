@@ -2,8 +2,6 @@
   (:require
    [re-frame.core :as re-frame]))
 
-
-
 (re-frame/reg-sub
  ::inputs
  (fn [db [_ k id]]
@@ -19,7 +17,7 @@
 
 (re-frame/reg-sub
  ::active-party-ids
- :<- [::all-inputs]
+ :<- [::inputs]
  (fn [all-inputs]
    (let [cs (:candidate all-inputs)]
      (->> cs
@@ -30,7 +28,7 @@
 
 (re-frame/reg-sub
  ::active-party-names
- :<- [::all-inputs]
+ :<- [::inputs]
  (fn [all-inputs]
    (map (fn [[_ {:keys [name]}]] name) (:party all-inputs))))
 

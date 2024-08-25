@@ -37,6 +37,14 @@
 (comment
   (get-colour-style "Black"))
 
+(defn tooltip [msg children]
+  [:div {:class "group relative flex"}
+   children
+   [:span {:class "absolute -top-10 scale-0 transition-all rounded bg-gray-800 p-2 text-xs text-white group-hover:scale-100"}
+    msg]])
+
+
+
 ;; Tailwind
 
 (def inactive-tab "inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300 cursor-pointer")
