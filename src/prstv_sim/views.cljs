@@ -4,13 +4,13 @@
    [prstv-sim.subs :as subs]
    [prstv-sim.graphs :as graphs]
    [prstv-sim.inputs :as inputs]
+   [prstv-sim.about :as about]
    [prstv-sim.results-display :as results]
    [reagent.core :as reagent]
    [prstv-sim.styles :as styles]))
 
 (defn main-views-wrapper [comp]
   [:div {:class "py-6"} comp])
-
 
 (defn inputs-panel []
   [:div
@@ -74,7 +74,7 @@
           :component [main-views-wrapper [results-panel]]}
          {:key :about
           :label "About"
-          :component [main-views-wrapper [:div "About Page TODO"]]})])
+          :component [main-views-wrapper [about/about]]})])
 
 (defn header-panel []
   [:div
@@ -84,10 +84,6 @@
 
 ;; TODO separate out header section
 (defn main-panel []
-  [:section {:class "bg-white dark:bg-gray-900"}
-   [:div {:class "py-8 px-4 mx-auto max-w-screen-xl lg:py-16 lg:px-6"}
-    [:div {:class "max-w-screen-lg text-gray-500 sm:text-lg dark:text-gray-400"}]
-    ;; :style {:background-color (inputs/colour-styles "Purple")}}
+  [:div {:class "bg-white dark:bg-gray-900 h-screen py-8 px-4 mx-auto max-w-screen-xl lg:py-16 lg:px-6"}
     [header-panel]
-
-    [tab-pages]]])
+    [tab-pages]])

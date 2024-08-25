@@ -51,7 +51,7 @@
 
 (def active-tab "inline-block p-4 text-blue-600 border-b-2 border-blue-600 rounded-t-lg active dark:text-blue-500 dark:border-blue-500")
 
-(def default-h2 "font-semibold text-lg py-3")
+(def default-h2 "font-semibold text-lg py-3 dark:text-white")
 
 (def default-button "disabled:cursor-not-allowed disabled:opacity-25 text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700")
 
@@ -75,12 +75,14 @@
 
 (def table-outer-div "relative overflow-x-auto shadow-md sm:rounded-lg pb-5")
 
-(def table-el "w-full text-sm text-left rtl:text-right text-gray-500 dark:text-gray-400")
+(def table-el "w-full text-xs md:text-sm text-left text-gray-500 dark:text-gray-400")
 
-(def table-caption "p-5 text-lg font-semibold text-left rtl:text-right text-gray-900 bg-white dark:text-white dark:bg-gray-800")
+(def table-caption "p-2 md:p-6 text-lg font-semibold text-left rtl:text-right text-gray-900 bg-white dark:text-white dark:bg-gray-800")
 
 (def table-caption-p "mt-1 text-sm font-normal text-gray-500 dark:text-gray-400")
 
-(def table-head "text-s text-gray-700 bg-gray-50 dark:bg-gray-700 dark:text-gray-400")
+(def table-cell "px-2 md:px-6 py-1")
+
+(def table-head "text-xs md:text-sm text-gray-700 bg-gray-50 dark:bg-gray-700 dark:text-gray-400")
 
 (def table-body "bg-white border-b dark:bg-gray-800 dark:border-gray-700")

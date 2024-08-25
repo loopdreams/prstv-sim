@@ -28,7 +28,6 @@
     (when (every? #(re-find #"\d" %) value)
       (< 0 (parse-long value) 101))))
 
-;; TODO tooltip functionality and content
 (defn hoverable-info-icon [info-text]
   [:div {:class "inline-block pl-2 w-64"}
    [styles/tooltip
@@ -131,11 +130,10 @@
   [:span {:class "fas fa-times"}])
 
 (def delete-icon-disabled
-  [:span {:class "fas fa-times"
-          :style {:color "#e2e8f0"}}])
+  [:span {:class "fas fa-times text-slate-200 dark:text-slate-600"}])
 
 (defn table-field-input-el [table id column val type & colour]
-  [:td {:class "px-6 py-1"}
+  [:td {:class styles/table-cell}
    [:input (merge {:type type
                    :class styles/default-input-field
                    :placeholder "Enter Name"
@@ -144,7 +142,7 @@
                   (when colour (styles/get-colour-style (first colour))))]])
 
 (defn table-field-select-el [table id column val options & party-id]
-  [:td {:class "px-6 py-1"}
+  [:td {:class styles/table-cell}
    [:form {:class "max-w-sm mx-auto"}
     (into
      [:select {:class styles/drop-down-select
@@ -158,8 +156,8 @@
   (let [active-party-ids @(re-frame/subscribe [::subs/active-party-ids])]
     [:tr {:class styles/table-body}
      [table-field-input-el :party id :name name "text" colour]
-     [table-field-input-el :party id :popularity popularity "number"]
      [table-field-select-el :party id :colour colour styles/party-colours-list]
+     [table-field-input-el :party id :popularity popularity "number"]
      [:td
       [:button {:disabled (when (some #{id} active-party-ids) true)
                 :on-click #(re-frame/dispatch [::events/delete-inputs :party id])}
@@ -182,13 +180,15 @@
   [:div {:class styles/table-outer-div}
      (into
       [:table {:class styles/table-el}]
+
       [[:caption {:class styles/table-caption}
         caption-title
         [:p {:class styles/table-caption-p} caption-text]]
+       
        [:thead {:class styles/table-head}
         (into [:tr]
               (for [name col-headings]
-                [:th {:class (str "px-6 py-3" (when (= name "Popularity") " sm:w-10"))} name]))]
+                [:th {:class (str styles/table-cell (when (= name "Popularity") " w-10"))} name]))]
        [:tbody
         (for [r row-data]
           (if (= form-type :party)
@@ -199,12 +199,12 @@
   (let [rows @(re-frame/subscribe [::subs/inputs :party])]
     [:div
      [table-form-component
-      ["Name" "Popularity" "Colour"]
+      ["Name" "Colour" "Popularity"]
       rows
       "Parties"
       "Set the parties that will be running in the election. Set the party name, how popular the party is, and a colour for the party."
       :party]
-     [:div.pt-5
+     [:div {:class "pt-5"}
       [:button
        {:class styles/default-button
         :on-click #(re-frame/dispatch [::events/add-blank-table-row :party])}
