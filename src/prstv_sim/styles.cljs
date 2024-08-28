@@ -91,4 +91,4 @@
 
 (def table-body "bg-white border-b dark:bg-gray-800 dark:border-gray-700")
 
-(def inputs-dark-border "px-4 dar:border border-slate-500 mt-2")
+(def inputs-dark-border "px-4 dark:border border-slate-500 mt-2")
