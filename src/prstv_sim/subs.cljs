@@ -10,10 +10,6 @@
      k     (get-in db [:inputs k])
      :else (get db :inputs))))
 
-(re-frame/reg-sub
- ::all-inputs
- (fn [db]
-   (:inputs db)))
 
 (re-frame/reg-sub
  ::active-party-ids
@@ -103,3 +99,8 @@
  ::processing-sankey-chart
  (fn [db]
    (:processing-sankey-chart db)))
+
+(re-frame/reg-sub
+ ::display-tabs?
+ (fn [db]
+   (:display-tabs? db)))

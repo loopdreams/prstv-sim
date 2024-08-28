@@ -70,6 +70,11 @@
 
 ;; Chart specs
 
+(def axis-label-colour
+  (if (. (. js/window (matchMedia "(prefers-color-scheme: dark)")) -matches)
+    "white"
+    "black"))
+
 (defn graph-spec-candidates [{:keys [labels datasets quota]}]
   {:type "bar"
    :data {:labels labels
@@ -96,7 +101,11 @@
     :scales {:y
              {:title
               {:display true
-               :text "Percentage (%)"}}}}})
+               :text "Percentage (%)"
+               :color axis-label-colour}
+              :ticks {:color axis-label-colour}}
+             :x
+             {:ticks {:color axis-label-colour}}}}})
 
 (defn graph-spec-parties [{:keys [labels datasets]}]
   {:type "bar"
@@ -108,17 +117,23 @@
              :scales {:y
                       {:title
                        {:display true
-                        :text "Percentage (%)"}}}}})
+                        :text "Percentage (%)"
+                        :color axis-label-colour}
+                       :ticks {:color axis-label-colour}}
+                      :x {:ticks {:color axis-label-colour}}}}})
+
 
 
 (defn graph-spec-sankey [cfg data]
   {:type "sankey"
    :data {:datasets [{:data data
                       :colorFrom (map (comp (partial sankey-get-color cfg) :from) data)
-                      :colorTo (map (comp (partial sankey-get-color cfg) :to) data)}]}})
+                      :colorTo (map (comp (partial sankey-get-color cfg) :to) data)
+                      :color axis-label-colour}]}})
 
 
 
+;; Candidate/Party renderer
 
 (defn reset-canvas! [id container-id]
   (let [target (.getElementById js/document id)
@@ -129,22 +144,21 @@
                     (doto (.createElement js/document "canvas")
                       (-> (.setAttribute "id" id)))))))
 
+
+(defn chart-first-prefs-render [spec container-id canvas-id]
+  (reagent/create-class
+   {:reagent-render      (fn [] [:div {:id container-id} [:canvas {:id canvas-id
+                                                                   :class "dark:bg-gray-800"}]])
+    :component-did-mount (fn [_]
+                           (let [ctx (.getContext (.getElementById js/document canvas-id) "2d")]
+                             (Chart. ctx (clj->js spec))))
+    :component-did-update
+    (fn [comp]
+      (reset-canvas! canvas-id container-id)
+      (let [ctx (.getContext (.getElementById js/document canvas-id) "2d")]
+        (Chart. ctx (clj->js (reagent/props comp)))))}))
+
 ;; Candidates
-
-(defn chart-candidates [spec]
-  (let [canvas-id    "chart-candidates"
-        container-id "chart-candidates-container"]
-    (reagent/create-class
-     {:reagent-render      (fn [] [:div {:id container-id} [:canvas {:id canvas-id}]])
-      :component-did-mount (fn [_]
-                             (let [ctx (.getContext (.getElementById js/document canvas-id) "2d")]
-                               (Chart. ctx (clj->js spec))))
-      :component-did-update
-      (fn [comp]
-        (reset-canvas! canvas-id container-id)
-        (let [ctx (.getContext (.getElementById js/document canvas-id) "2d")]
-          (Chart. ctx (clj->js (reagent/props comp)))))})))
-
 
 (defn chart-candidates-wrapper []
   (let [results       (re-frame/subscribe [::subs/results])
@@ -156,26 +170,11 @@
                        (vega-spec-data->chartjs)
                        (graph-spec-candidates))]
           [:div {:class "basis-1/2"}
-           [:h2 {:class "p-5 text-lg font-semibold text-left rtl:text-right text-gray-900 bg-white dark:text-white dark:bg-gray-800"} "Candidate First Preference Votes"]
-           [chart-candidates data]]))
+           [:h2 {:class styles/default-h2} "Candidate First Preference Votes"]
+           [chart-first-prefs-render data "chart-candidates-container" "chart-candidates"]]))
       [:div])))
 
 ;; Parties
-
-(defn chart-parties [spec]
-  (let [canvas-id    "chart-parties"
-        container-id "chart-parties-container"]
-    (reagent/create-class
-     {:reagent-render      (fn [] [:div {:id container-id} [:canvas {:id canvas-id}]])
-      :component-did-mount (fn [_]
-                             (let [ctx (.getContext (.getElementById js/document canvas-id) "2d")]
-                               (Chart. ctx (clj->js spec))))
-      :component-did-update
-      (fn [comp]
-        (reset-canvas! canvas-id container-id)
-        (let [ctx (.getContext (.getElementById js/document canvas-id) "2d")]
-          (Chart. ctx (clj->js (reagent/props comp)))))})))
-
 
 
 (defn chart-parties-wrapper []
@@ -188,8 +187,9 @@
                        (vega-spec-data->chartjs)
                        (graph-spec-parties))]
           [:div {:class "basis-1/2"}
-           [:h2 {:class "p-5 text-lg font-semibold text-left rtl:text-right text-gray-900 bg-white dark:text-white dark:bg-gray-800"} "Party First Preference Votes"]
-           [chart-parties data]]))
+           [:h2 {:class styles/default-h2}
+            "Party First Preference Votes"]
+           [chart-first-prefs-render data "chart-parties-container" "chart-parties"]]))
       [:div])))
 
 ;; Sankey Chart
@@ -278,7 +278,9 @@
               cfg      @vote-config
               spec     (->> (candidate-sankey-data c-data candidate)
                             (graph-spec-sankey cfg))]
-          [sankey-chart-renderer spec "candidate-sankey-container" "candidate-sankey-canvas"])))))
+          [:div
+           [:h2 {:class styles/default-h2} (str (inputs/keyword->name candidate) " Vote Flows")]
+           [sankey-chart-renderer spec "candidate-sankey-container" "candidate-sankey-canvas"]])))))
 
 
 
@@ -303,9 +305,10 @@
         status       (re-frame/subscribe [::subs/processing-sankey-chart])
         screen-not-wide-enough? (> 1080 (. js/screen -width))]
     (if screen-not-wide-enough?
-      [:div "Vote flows chart can only be viewed on wider screens."]
+      [:div {:class "text-slate-500 dark:text-slate-300 text-xs md:text-sm mt-5 text-center"}
+       [:p "Vote flows chart can only be viewed on wider screens."]]
 
-      [:button {:class    "w-full text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-sm px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700"
+      [:button {:class    "w-full text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-xs md:text-sm px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700"
                 :on-click #(re-frame/dispatch [::events/process-sankey-chart])
                 :disabled screen-not-wide-enough?}
 

@@ -1,3 +1,12 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+
+h1 {font-weight: bold;
+   margin-bottom: 1em;
+   font-size: 1.2em;
+   border-bottom: 1px solid black;}
+
+p {padding-bottom: 1em;}

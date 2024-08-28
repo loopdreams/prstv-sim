@@ -8,7 +8,7 @@
 (defn quota [n-votes n-seats]
   (-> n-votes
       (/ (inc n-seats))
-      (+ 1)))
+      inc))
 
 ;; TODO discount 'no preference' here?
 (defn counts->proportions [counts]

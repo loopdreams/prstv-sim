@@ -110,7 +110,10 @@
  ::process-results
  (fn [{db :db} [_ vote-config candidates my-ballot ballot-id seats]]
    {:dispatch ^:flush-dom [::calculate-results vote-config candidates my-ballot ballot-id seats]
-    :db (assoc db :processing-results :loading)}))
+    :db (-> db
+            (assoc :processing-results :loading)
+            (assoc :sankey-show? false)
+            (assoc :sankey-selector nil))}))
 
 
 (re-frame/reg-event-db
@@ -131,3 +134,9 @@
  ::sankey-selector
  (fn [db [_ cand]]
    (assoc db :sankey-selector cand)))
+
+(re-frame/reg-event-db
+ ::toggle-nav-menu
+ (fn [db]
+   (let [cur (:display-tabs? db)]
+     (assoc db :display-tabs? (if cur false true)))))

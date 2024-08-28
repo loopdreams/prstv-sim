@@ -10,7 +10,7 @@
 (def n-votes-limit 900000)
 (def n-votes-warning 90000)
 
-(def preference-depth-options ["Shallow" "Mid" "Deep"])
+(def preference-depth-options ["Shallow" "Mid" "Deep" "Random"])
 
 (defn valid-number-of-votes? []
   (let [value @(re-frame/subscribe [::subs/inputs :n-votes])]
@@ -29,7 +29,7 @@
       (< 0 (parse-long value) 101))))
 
 (defn hoverable-info-icon [info-text]
-  [:div {:class "inline-block pl-2 w-64"}
+  [:div {:class "inline-block pl-2"}
    [styles/tooltip
     info-text
     [:span.icon
@@ -41,9 +41,8 @@
   (let [value (re-frame/subscribe [::subs/inputs :n-votes])
         field-ok (and (seq @value) (valid-number-of-votes?))
         field-warning (> @value n-votes-warning)]
-    [:div {:class "mb-6"}
-     [:label {:class (if-not field-ok styles/warning-label styles/default-label)} "Number of Votes"
-      [hoverable-info-icon "Set how many total votes will be cast. More votes take much longer to simiulate."]]
+    [:label {:class (if-not field-ok styles/warning-label styles/default-label)} "Number of Votes"
+     [hoverable-info-icon "Set how many total votes will be cast. More votes take much longer to simiulate."]
      [:div
       [:input
        {:class (if-not field-ok styles/warning-input-field styles/default-input-field)
@@ -61,12 +60,11 @@
 (defn set-number-of-seats []
   (let [value (re-frame/subscribe [::subs/inputs :n-seats])
         field-ok (and (seq @value) (valid-number-of-seats?))]
-    [:div {:class "mb-6"}
-     [:label {:class (if-not field-ok
-                       styles/warning-label
-                       styles/default-label)}
-      "Number of Seats"
-      [hoverable-info-icon "Set how many seats are available in the area. Should be less than the number of candidates."]]
+    [:label {:class (if-not field-ok
+                      styles/warning-label
+                      styles/default-label)}
+     "Number of Seats"
+     [hoverable-info-icon "Set how many seats are available in the area. Should be less than the number of candidates."]
      [:div
       [:input
        {:class (if-not field-ok styles/warning-input-field styles/default-input-field)
@@ -80,8 +78,7 @@
 
 (defn set-volatility []
   (let [value (re-frame/subscribe [::subs/inputs :volatility])]
-    [:div {:class "mb-6"}
-     [:label {:class styles/default-label}"Volatility" [hoverable-info-icon "TODO"]]
+    [:label {:class styles/default-label}"Volatility" [hoverable-info-icon "TODO"]
      [:div
       [:input
        {:class styles/default-input-field
@@ -96,26 +93,25 @@
 
 ;; TODO set default radio setting
 (defn set-preference-depth []
-  [:div {:class "mb-6"}
-   [:label {:class styles/default-label} "Preference Depth" [hoverable-info-icon "Set the weighting for how many preferences people will choose on the ballot. 'Deeper' preferences leads to more possible transfers."]]
+  [:label {:class styles/default-label} "Preference Depth" [hoverable-info-icon "Set the weighting for how many preferences people will choose on the ballot. 'Deeper' preferences leads to more possible transfers."]
    (into
-    [:div]
-    (for [p preference-depth-options]
+    [:div {:class "pt-2"}]
+    (for [pref preference-depth-options]
       [:div {:class "flex items-center mb-4"}
+
        [:input {:name "preference-depth"
                 :type "radio"
-                :value p
-                :id p
+                :value pref
+                :id pref
                 :class "w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                 :on-change #(when (-> % .-target .-checked)
-                              (re-frame/dispatch [::events/update-inputs
-                                                  :preference-depth
-                                                  (keyword (str/lower-case p))]))}]
-       [:label {:class "ms-2 text-sm font-medium text-gray-900 dark:text-gray-300"} p]]))])
+                              (re-frame/dispatch [::events/update-inputs :preference-depth (keyword (str/lower-case pref))]))}]
+       [:label {:class "ms-2 text-xs md:text-sm font-medium text-gray-900 dark:text-gray-300"} pref]]))])
+
 
 
 (defn set-vote-params []
-  [:div {:class "px-4 border mt-2"}
+  [:div {:class (str styles/inputs-dark-border " shadow-md py-2")}
    [:h2 {:class styles/default-h2} "Vote Parameters"]
    [:form
     [set-number-of-votes]
@@ -142,15 +138,15 @@
                   (when colour (styles/get-colour-style (first colour))))]])
 
 (defn table-field-select-el [table id column val options & party-id]
-  [:td {:class styles/table-cell}
+  [:td {:class "px-2 py-1"}
    [:form {:class "max-w-sm mx-auto"}
     (into
      [:select {:class styles/drop-down-select
                :value val
                :on-change #(re-frame/dispatch [::events/update-table-field table id column (-> % .-target .-value) party-id])}]
      [[:option "Select Party"]
-      (for [o options]
-        [:option o])])]])
+      (for [[idx o] (map-indexed vector options)]
+        ^{:key idx} [:option o])])]])
 
 (defn party-table-form-row [[id {:keys [name popularity colour]}]]
   (let [active-party-ids @(re-frame/subscribe [::subs/active-party-ids])]
@@ -184,20 +180,20 @@
       [[:caption {:class styles/table-caption}
         caption-title
         [:p {:class styles/table-caption-p} caption-text]]
-       
+
        [:thead {:class styles/table-head}
         (into [:tr]
               (for [name col-headings]
-                [:th {:class (str styles/table-cell (when (= name "Popularity") " w-10"))} name]))]
+                [:th {:class (str "px-2 md:px-6 py-1 md:py-3" (when (= name "Popularity") " w-10"))} name]))]
        [:tbody
-        (for [r row-data]
+        (for [[idx r] (map-indexed vector row-data)]
           (if (= form-type :party)
-            [party-table-form-row r]
-            [candidate-table-form-row r]))]])])
+            ^{:key idx} [party-table-form-row r]
+            ^{:key idx} [candidate-table-form-row r]))]])])
 
 (defn party-table-form []
   (let [rows @(re-frame/subscribe [::subs/inputs :party])]
-    [:div
+    [:div {:class styles/inputs-dark-border}
      [table-form-component
       ["Name" "Colour" "Popularity"]
       rows
@@ -206,20 +202,20 @@
       :party]
      [:div {:class "pt-5"}
       [:button
-       {:class styles/default-button
+       {:class styles/table-add-button
         :on-click #(re-frame/dispatch [::events/add-blank-table-row :party])}
        "Add Party"]]]))
 
 (defn candidate-table-form []
   (let [rows @(re-frame/subscribe [::subs/inputs :candidate])]
-    [:div
+    [:div {:class styles/inputs-dark-border}
      [table-form-component
       ["Name" "Party" "Popularity"]
       rows
       "Candidates"
       "Select the candidates ..."]
      [:div.pt-5
-      [:button {:class styles/default-button
+      [:button {:class styles/table-add-button
                 :on-click #(re-frame/dispatch [::events/add-blank-table-row :candidate])}
        "Add Candidate"]]]))
 
@@ -231,13 +227,13 @@
         available-preferences @(re-frame/subscribe [::subs/available-preferences])
         available-preferences (if (not= val "Select Preference") (conj available-preferences val) available-preferences)]
     [:div {:class "mb-6"}
-     [:label {:class styles/default-label} cand-name]
-     (into
-      [:select {:class styles/drop-down-select
-                :value val
-                :on-change #(re-frame/dispatch [::events/update-my-ballot cand-name (-> % .-target .-value)])}]
-      (cons [:option "Select Preference"]
-            (map (fn [p] [:option p]) available-preferences)))]))
+     [:label {:class styles/default-label} cand-name
+      (into
+       [:select {:class styles/drop-down-select
+                 :value val
+                 :on-change #(re-frame/dispatch [::events/update-my-ballot cand-name (-> % .-target .-value)])}]
+       (cons [:option "Select Preference"]
+             (map (fn [p] [:option p]) available-preferences)))]]))
 
 
 (defn user-ballot-form []
@@ -250,13 +246,15 @@
        [:h2 {:class styles/default-h2 } "My Ballot"]
        (into [:div]
              (map ballot-form-row c-names))]
-      [:div
-       [:button {:class styles/default-button
-                 :on-click #(re-frame/dispatch [::events/activate-my-ballot])
-                 :disabled (not vote-config)}
-        "Create and track your own ballot"]
+      [:div {:class "flex flex-col align-center text-center"}
+       [:div {:class "m-auto"}
+        [:button {:class styles/special-button
+                  :on-click #(re-frame/dispatch [::events/activate-my-ballot])
+                  :disabled (not vote-config)}
+         "Create and track your own ballot (Optional)"]]
        (when (not vote-config)
-         [:p "Configure the vote before adding your ballot"])])))
+         [:div {:class "text-xs md:text-sm text-slate-800 dark:text-slate-400"}
+          "Configure the vote before adding your ballot"])])))
 
 
 
@@ -265,12 +263,12 @@
 ;; TODO different button style
 (defn preconfig-selector-button [[_ {:keys [name values]}]]
   [:button
-   {:class styles/default-button
+   {:class styles/config-profile-button
     :on-click #(re-frame/dispatch [::events/load-input-config values])}
    name])
 
 (defn preconfig-options-selector []
-  [:div {:class "px-4 border mt-2"}
+  [:div {:class (str styles/inputs-dark-border " shadow-md py-2")}
    [:h2 {:class styles/default-h2} "Configuration Profiles"]
    (conj
     (into [:div]
@@ -359,6 +357,6 @@
             "Incomplete information for a Candidate in the Candidate Table"])
          [:div {:class "h-6"}
           [:span {:id "config-added-confirmation"
-                  :class "text-center text-teal-600"
+                  :class "text-center text-teal-600 text-xs md:text-sm"
                   :style {:display "none"}}
            "Vote Config Added Successfully!"]]]))))
