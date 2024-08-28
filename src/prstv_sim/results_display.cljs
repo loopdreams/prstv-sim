@@ -38,7 +38,7 @@
   (let [party-id (-> candidate candidate-party)
         party-name (-> party-id party-names)]
     [:div (merge (styles/get-colour-style (party-colours party-id))
-                 {:class "py-2 px-4 rounded-lg text-bold text-sm md:text-lg"})
+                 {:class "py-2 px-4 rounded-lg text-bold text-sm md:text-base"})
      (str (inputs/keyword->name candidate) " (" party-name ")")]))
 
 (defn elected-display [elected]
