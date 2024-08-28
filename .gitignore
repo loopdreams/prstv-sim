@@ -1,6 +1,6 @@
 /out/
 /resources/public/js/compiled/
-/target/
+/target/browser-test/
 /*-init.clj
 /*.log
 
