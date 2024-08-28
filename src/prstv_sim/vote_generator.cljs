@@ -1,6 +1,4 @@
-(ns prstv-sim.vote-generator
-  (:require
-    [re-frame.core :as re-frame]))
+(ns prstv-sim.vote-generator)
 
 (def same-party-buff 40)
 (def party-popularity-weighting 15)
@@ -44,17 +42,28 @@
             (nth values i)
             (recur rest (- rnd (nth weights i))))))))
 
+
+(defn- my-partition-all [coll n]
+  (loop [coll coll
+         partitioned []]
+   (cond
+     (= 3 (count partitioned)) partitioned
+     (= 2 (count partitioned)) (conj partitioned coll)
+     :else (recur
+            (into [] (drop n coll))
+            (conj partitioned (into [] (take n coll)))))))
+
 (defn- ballot-depth
   "Returns the number of candidates to assign preferences to."
   [{:keys [candidates preference-depth]}]
   (let [n-candidates   (count candidates)
         partition-size (Math/round (double (/ n-candidates 3)))
-        c-batches      (partition-all partition-size (range 1 (inc n-candidates)))
+        c-batches      (my-partition-all (range 1 (inc n-candidates)) partition-size)
         weights        (case preference-depth
-                         :deep    [15 20 40]
-                         :mid     [10 40 10]
-                         :shallow [40 20 15]
-                         [(rand-int 10) (rand-int 10) (rand-int 10)])]
+                         :deep    [5 10 50]
+                         :mid     [5 50 5]
+                         :shallow [50 10 5]
+                         [(rand-int 10) (rand-int 10) (rand-int 10)])] ;; If no preference set, just assign random weightings
     (-> c-batches
         (weighted-randomizer weights)
         (rand-nth))))
