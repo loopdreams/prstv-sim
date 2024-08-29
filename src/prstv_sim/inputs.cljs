@@ -45,7 +45,7 @@
      [hoverable-info-icon "Set how many total votes will be cast. More votes take much longer to simiulate."]
      [:div
       [:input
-       {:class (if-not field-ok styles/warning-input-field styles/default-input-field)
+       {:class (str "mt-2 " (if-not field-ok styles/warning-input-field styles/default-input-field))
         :type "number"
         :value @value
         :placeholder "Enter number of votes"
@@ -60,14 +60,12 @@
 (defn set-number-of-seats []
   (let [value (re-frame/subscribe [::subs/inputs :n-seats])
         field-ok (and (seq @value) (valid-number-of-seats?))]
-    [:label {:class (if-not field-ok
-                      styles/warning-label
-                      styles/default-label)}
+    [:label {:class (if-not field-ok styles/warning-label styles/default-label)}
      "Number of Seats"
      [hoverable-info-icon "Set how many seats are available in the area. Should be less than the number of candidates."]
      [:div
       [:input
-       {:class (if-not field-ok styles/warning-input-field styles/default-input-field)
+       {:class (str "mt-2 " (if-not field-ok styles/warning-input-field styles/default-input-field))
         :type "number"
         :value @value
         :placeholder "Enter number of seats"
@@ -81,7 +79,7 @@
     [:label {:class styles/default-label}"Volatility" [hoverable-info-icon "TODO"]
      [:div
       [:input
-       {:class styles/default-input-field
+       {:class (str "mt-2 " styles/default-input-field)
         :type "number"
         :value @value
         :placeholder "(Optional) Enter number between 1 and 100"
@@ -95,7 +93,7 @@
 (defn set-preference-depth []
   [:label {:class styles/default-label} "Preference Depth" [hoverable-info-icon "Set the weighting for how many preferences people will choose on the ballot. 'Deeper' preferences leads to more possible transfers."]
    (into
-    [:div {:class "pt-2"}]
+    [:div {:class "mt-2"}]
     (for [pref preference-depth-options]
       [:div {:class "flex items-center mb-4"}
 
@@ -111,7 +109,7 @@
 
 
 (defn set-vote-params []
-  [:div {:class (str styles/inputs-dark-border " shadow-md py-2")}
+  [:div {:class (str styles/inputs-dark-border " shadow-md p-6")}
    [:h2 {:class styles/default-h2} "Vote Parameters"]
    [:form
     [set-number-of-votes]
@@ -121,6 +119,20 @@
 
 
 ;; Tables
+
+
+(defn name->keyword [name]
+  (when name
+    (-> name
+        str/lower-case
+        (str/replace #" " "-")
+        keyword)))
+
+(defn keyword->name [kw]
+  (when kw
+    (->>
+     (map str/capitalize (-> (name kw) (str/split #"-")))
+     (str/join " "))))
 
 (def delete-icon
   [:span {:class "fas fa-times"}])
@@ -222,30 +234,33 @@
 
 ;; My Ballot
 
-(defn ballot-form-row [cand-name]
-  (let [val (or (-> @(re-frame/subscribe [::subs/my-ballot]) (get cand-name)) "Select Preference")
+(defn ballot-form-row [candidate {:keys [candidate-party party-names party-colours]}]
+  (let [val                   (or (-> @(re-frame/subscribe [::subs/my-ballot]) (get candidate)) "Select Preference")
         available-preferences @(re-frame/subscribe [::subs/available-preferences])
-        available-preferences (if (not= val "Select Preference") (conj available-preferences val) available-preferences)]
+        available-preferences (if (not= val "Select Preference") (conj available-preferences val) available-preferences)
+        c-party               (-> candidate-party candidate)
+        party-name            (party-names c-party)
+        party-color           (party-colours c-party)]
     [:div {:class "mb-6"}
-     [:label {:class styles/default-label} cand-name
+     [:label {:class styles/default-label}
+      [styles/party-icon party-color] (str (keyword->name candidate) " (" party-name ")")
       (into
-       [:select {:class styles/drop-down-select
-                 :value val
-                 :on-change #(re-frame/dispatch [::events/update-my-ballot cand-name (-> % .-target .-value)])}]
+       [:select {:class     (str "mt-2 " styles/drop-down-select)
+                 :value     val
+                 :on-change #(re-frame/dispatch [::events/update-my-ballot candidate (-> % .-target .-value)])}]
        (cons [:option "Select Preference"]
              (map (fn [p] [:option p]) available-preferences)))]]))
 
 
 (defn user-ballot-form []
-  (let [candidates @(re-frame/subscribe [::subs/inputs :candidate])
-        my-ballot? @(re-frame/subscribe [::subs/my-ballot?])
+  (let [my-ballot? @(re-frame/subscribe [::subs/my-ballot?])
         vote-config @(re-frame/subscribe [::subs/vote-config])
-        c-names (->> (vals candidates) (map :name))]
+        candidates (:candidates vote-config)]
     (if my-ballot?
       [:div
        [:h2 {:class styles/default-h2 } "My Ballot"]
        (into [:div]
-             (map ballot-form-row c-names))]
+             (map #(ballot-form-row % vote-config) candidates))]
       [:div {:class "flex flex-col align-center text-center"}
        [:div {:class "m-auto"}
         [:button {:class styles/special-button
@@ -268,7 +283,7 @@
    name])
 
 (defn preconfig-options-selector []
-  [:div {:class (str styles/inputs-dark-border " shadow-md py-2")}
+  [:div {:class (str styles/inputs-dark-border " shadow-md p-6")}
    [:h2 {:class styles/default-h2} "Configuration Profiles"]
    (conj
     (into [:div]
@@ -279,18 +294,6 @@
 
 ;; Convert Inputs to Vote Map
 
-(defn name->keyword [name]
-  (when name
-    (-> name
-        str/lower-case
-        (str/replace #" " "-")
-        keyword)))
-
-(defn keyword->name [kw]
-  (when kw
-    (->>
-     (map str/capitalize (-> (name kw) (str/split #"-")))
-     (str/join " "))))
 
 
 

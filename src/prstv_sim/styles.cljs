@@ -30,6 +30,11 @@
     (assoc-in data [:style :background-color] (colour-styles key))))
 
 
+(defn party-icon [colour]
+  [:span {:class "fas fa-circle pr-1"
+          :style {:color (colour-styles colour)}}])
+
+
 (defn spinner []
   [:div
    [:div#spinner.lds-ring [:div] [:div] [:div] [:div]]])
@@ -91,4 +96,4 @@
 
 (def table-body "bg-white border-b dark:bg-gray-800 dark:border-gray-700")
 
-(def inputs-dark-border "px-4 dark:border border-slate-500 mt-2")
+(def inputs-dark-border "dark:border border-slate-500 mt-2")

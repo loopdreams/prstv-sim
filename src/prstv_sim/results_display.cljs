@@ -9,7 +9,7 @@
 (defn convert-my-ballot [preferences]
   (let [id (str (random-uuid))
         ballot (reduce (fn [b [name pref]]
-                         (assoc b (inputs/name->keyword name) (parse-long pref)))
+                         (assoc b name (parse-long pref)))
                        {}
                        preferences)]
     (zipmap [id] [ballot])))
@@ -99,9 +99,6 @@
         :eliminated (and (= exit-at (inc nth-col)) (not (elected candidate)))
         :marked-ballot marked-ballot?}])))
 
-(defn party-icon [colour]
-  [:span {:class "fas fa-circle pr-1"
-          :style {:color (styles/colour-styles colour)}}])
 
 (defn vote-counts-data-row [candidate counts-data table-data vote-config candidate-shares seats elected]
   (let [{:keys [position]}                                  (candidate table-data)
@@ -112,7 +109,7 @@
     [:tr
      [:th {:class "px-2 py-2"} (when (some #{position} (range seats)) (inc position))]
      ;; [:td (merge {:class "px-2 py-2"} (styles/get-colour-style party-colour)) party-name]
-     [:td (party-icon party-colour) (str " " party-name)]
+     [:td [styles/party-icon party-colour] (str " " party-name)]
      [:th (merge {:class "px-2 py-2 cursor-pointer"
                   :on-click #(re-frame/dispatch [::events/sankey-selector candidate])})
       (inputs/keyword->name candidate)]
