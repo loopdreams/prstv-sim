@@ -29,7 +29,7 @@
       (< 0 (parse-long value) 101))))
 
 (defn hoverable-info-icon [info-text]
-  [:div {:class "inline-block pl-2"}
+  [:div {:class "grow pl-2"}
    [styles/tooltip
     info-text
     [:span.icon
@@ -41,31 +41,34 @@
   (let [value (re-frame/subscribe [::subs/inputs :n-votes])
         field-ok (and (seq @value) (valid-number-of-votes?))
         field-warning (> @value n-votes-warning)]
-    [:label {:class (if-not field-ok styles/warning-label styles/default-label)} "Number of Votes"
-     [hoverable-info-icon "Set how many total votes will be cast. More votes take much longer to simiulate."]
-     [:div
-      [:input
-       {:class (str "mt-2 " (if-not field-ok styles/warning-input-field styles/default-input-field))
-        :type "number"
-        :value @value
-        :placeholder "Enter number of votes"
-        :on-change #(re-frame/dispatch [::events/update-inputs :n-votes (-> % .-target .-value)])}]
-      (cond
-        (not field-ok) [:div {:class styles/warning-text}
-                        (str "Number of votes should be less than " n-votes-limit)]
-        field-warning [:div {:class styles/caution-text}
-                       "It will take several seconds to generate results when vote counts are large, due to the time it takes to generate the ballots."]
-        :else nil)]]))
+    [:div {:class "py-1.5"}
+     [:div {:class "flex flex-row"}
+      [:label {:class (if-not field-ok styles/warning-label styles/default-label)} "Number of Votes"]
+      [hoverable-info-icon "Set how many total votes will be cast. More votes take much longer to simiulate."]]
+     [:input
+      {:class (str "mb-4 " (if-not field-ok styles/warning-input-field styles/default-input-field))
+       :type "number"
+       :value @value
+       :placeholder "Enter number of votes"
+       :on-change #(re-frame/dispatch [::events/update-inputs :n-votes (-> % .-target .-value)])}]
+     (cond
+       (not field-ok) [:div {:class styles/warning-text}
+                       (str "Number of votes should be less than " n-votes-limit)]
+       field-warning [:div {:class styles/caution-text}
+                      "It will take several seconds to generate results when vote counts are large, due to the time it takes to generate the ballots."]
+       :else nil)]))
 
 (defn set-number-of-seats []
   (let [value (re-frame/subscribe [::subs/inputs :n-seats])
         field-ok (and (seq @value) (valid-number-of-seats?))]
-    [:label {:class (if-not field-ok styles/warning-label styles/default-label)}
-     "Number of Seats"
-     [hoverable-info-icon "Set how many seats are available in the area. Should be less than the number of candidates."]
-     [:div
+    [:div {:class "py-1.5"}
+     [:div {:class "flex flex-row"}
+      [:label {:class (if-not field-ok styles/warning-label styles/default-label)}
+       "Number of Seats"]
+      [hoverable-info-icon "Set how many seats are available in the area. Should be less than the number of candidates."]]
+     [:div {:class "mb-4"}
       [:input
-       {:class (str "mt-2 " (if-not field-ok styles/warning-input-field styles/default-input-field))
+       {:class (str (if-not field-ok styles/warning-input-field styles/default-input-field))
         :type "number"
         :value @value
         :placeholder "Enter number of seats"
@@ -74,9 +77,13 @@
         [:div {:class styles/warning-text}
          "Number of seats has to be a number greater than 0 and less than the total number of candidates."])]]))
 
+;; TODO properly format warning here (or remove)
 (defn set-volatility []
   (let [value (re-frame/subscribe [::subs/inputs :volatility])]
-    [:label {:class styles/default-label}"Volatility" [hoverable-info-icon "TODO"]
+    [:div {:class "py-1.5"}
+     [:div {:class "flex flex-row"}
+      [:label {:class styles/default-label}"Volatility"]
+      [hoverable-info-icon "TODO"]]
      [:div
       [:input
        {:class (str "mt-2 " styles/default-input-field)
@@ -91,7 +98,10 @@
 
 ;; TODO set default radio setting
 (defn set-preference-depth []
-  [:label {:class styles/default-label} "Preference Depth" [hoverable-info-icon "Set the weighting for how many preferences people will choose on the ballot. 'Deeper' preferences leads to more possible transfers."]
+  [:div {:class "py-1.5"}
+   [:div {:class "flex flex-row"}
+    [:label {:class styles/default-label} "Preference Depth"]
+    [hoverable-info-icon "Set the weighting for how many preferences people will choose on the ballot. 'Deeper' preferences leads to more possible transfers."]]
    (into
     [:div {:class "mt-2"}]
     (for [pref preference-depth-options]
