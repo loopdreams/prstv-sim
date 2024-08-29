@@ -301,13 +301,18 @@
 
 
 (defn all-candidates-sankey-toggle []
-  (let [show?        @(re-frame/subscribe [::subs/sankey-show?])
-        status       (re-frame/subscribe [::subs/processing-sankey-chart])
-        screen-not-wide-enough? (> 1080 (. js/screen -width))]
-    (if screen-not-wide-enough?
-      [:div {:class "text-slate-500 dark:text-slate-300 text-xs md:text-sm mt-5 text-center"}
-       [:p "Vote flows chart can only be viewed on wider screens."]]
-
+  (let [show?                   @(re-frame/subscribe [::subs/sankey-show?])
+        status                  (re-frame/subscribe [::subs/processing-sankey-chart])
+        screen-not-wide-enough? (> 1080 (. js/screen -width))
+        v-config                @(re-frame/subscribe [::subs/vote-config])
+        too-many-votes?         (> (:n-votes v-config) 3001)
+        warn-msg             (fn [type]
+                               [:div {:class "text-slate-500 dark:text-slate-300 text-xs md:text-sm mt-5 text-center"}
+                                [:p (str "Vote flows chart can only be viewed " type)]])]
+    (cond
+      too-many-votes? (warn-msg "when total votes are less than 3000.")
+      screen-not-wide-enough? (warn-msg "on wider screens.")
+      :else
       [:button {:class    "w-full text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-xs md:text-sm px-5 py-2.5 me-2 mb-2 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700"
                 :on-click #(re-frame/dispatch [::events/process-sankey-chart])
                 :disabled screen-not-wide-enough?}
