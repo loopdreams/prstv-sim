@@ -49,7 +49,7 @@
 
 (comment
   ;; In this case E gets 4 votes, while B and G get 3 ... what is a fairer way to do this?
-  (share-distributor {:E 7, :F 4, :G 7, :no-preference 1, :B 7, :D 2, :C 3} 10))
+  (share-distributor {:E 7, :F 4, :G 7, :no-preference 1, :B 7, :D 2, :C 3} 11))
 
 ;; According to the guidelines, a surplus can be redistributed if:
 ;; - It can elect the highest continuing candidate
@@ -198,6 +198,15 @@
      (sort-candidate-positions counts candidates)
      last)))
 
+(defn end-count-early
+  "When there is no point redistributing votes, e.g., only two candidates left - pick the highest one"
+  [active elected count-states positions count-n p]
+  (let [eliminated-candidate (lowest-candidate p active)
+        elec (disj active eliminated-candidate)]
+    [(into elected elec)
+     (-> count-states
+         (assign-candidate-position positions elec (select-keys (vote-counts p) elec) count-n :elected)
+         (assign-candidate-position positions #{eliminated-candidate} (select-keys (vote-counts p) #{eliminated-candidate}) count-n :eliminated))]))
 
 ;; TODO rename inner 'counts' key (since there is also an outer 'counts' key)
 (defn run-vote-counts [candidates t-votes number-of-seats]
@@ -239,7 +248,7 @@
                    surpluses     (reduce #(assoc %1 %2 (- (%2 counts) quota)) {} elec)
                    total-surplus (reduce + (vals surpluses))
                    counts-for-surplus-calc (select-keys counts (apply (partial disj active) elec))]
-               (if (and (seq elec) (redistribute-surplus? quota counts-for-surplus-calc total-surplus))
+               (if (and (seq elec) (redistribute-surplus? quota counts-for-surplus-calc total-surplus) (> (count active) 2))
                  (let [active     (apply (partial disj active) elec)
                        new-piles  (reduce (fn [p elected]
                                             (surplus-distribute p t-votes elected active quota cnt-changes))
@@ -266,12 +275,7 @@
                  (if (= (- (count active) 1) (- number-of-seats (count elected)))
                    ;; No need to redistribute eliminated votes in this case
                    ;; TODO handle when there are 2+ candidates at bottom
-                   (let [eliminated-candidate (lowest-candidate p active)
-                         elec (disj active eliminated-candidate)]
-                     [(into elected elec)
-                      (-> count-states
-                          (assign-candidate-position positions elec (select-keys (vote-counts p) elec) count-n :elected)
-                          (assign-candidate-position positions #{eliminated-candidate} (select-keys (vote-counts p) #{eliminated-candidate}) count-n :eliminated))])
+                   (end-count-early active elected count-states positions count-n p)
                    (let [elim       (get-counts-eliminated counts)
                          active     (apply (partial disj active) elim)
                          active     (if (seq elec) (apply (partial disj active) elec)
@@ -301,7 +305,7 @@
                                            :active        active
                                            :counts        new-counts})
                                 (assign-candidate-position positions elim counts count-n :eliminated)
-                              (assign-candidate-position positions elec counts count-n :elected)))))))))))
+                                (assign-candidate-position positions elec counts count-n :elected)))))))))))
 
 
 (comment
