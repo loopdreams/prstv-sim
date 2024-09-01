@@ -104,3 +104,8 @@
  ::display-tabs?
  (fn [db]
    (:display-tabs? db)))
+
+(re-frame/reg-sub
+ ::active-preconfig
+ (fn [db]
+   (:pre-config db)))

@@ -10,9 +10,9 @@
 (re-frame/reg-event-db
  ::initialize-db
  (fn-traced [_ _]
-            (assoc
-             db/default-db
-             :inputs v-configs/input-default)))
+            (-> db/default-db
+                (assoc :inputs v-configs/input-default)
+                (assoc :pre-config "Default"))))
 
 (re-frame/reg-event-db
  ::update-inputs
@@ -21,8 +21,10 @@
 
 (re-frame/reg-event-db
  ::load-input-config
- (fn [db [_ data]]
-   (assoc db :inputs data)))
+ (fn [db [_ data name]]
+   (-> db
+       (assoc :inputs data)
+       (assoc :pre-config name))))
 
 (re-frame/reg-event-db
  ::delete-inputs

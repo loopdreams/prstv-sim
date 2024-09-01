@@ -29,7 +29,7 @@
       (< 0 (parse-long value) 101))))
 
 (defn hoverable-info-icon [info-text]
-  [:div {:class "grow pl-2"}
+  [:div {:class "grow pl-2 dark:text-slate-200"}
    [styles/tooltip
     info-text
     [:span.icon
@@ -286,19 +286,20 @@
 ;; Pre-Configs
 
 ;; TODO different button style
-(defn preconfig-selector-button [[_ {:keys [name values]}]]
+(defn preconfig-selector-button [[_ {:keys [name values]}] active-preconfig]
   [:button
-   {:class styles/config-profile-button
-    :on-click #(re-frame/dispatch [::events/load-input-config values])}
+   {:class (if (= active-preconfig name) styles/config-profile-button-active styles/config-profile-button)
+    :on-click #(re-frame/dispatch [::events/load-input-config values name])}
    name])
 
 (defn preconfig-options-selector []
-  [:div {:class (str styles/inputs-dark-border " shadow-md p-6")}
-   [:h2 {:class styles/default-h2} "Configuration Profiles"]
-   (conj
-    (into [:div]
-          (map preconfig-selector-button v-configs/sample-config-options-list))
-    [preconfig-selector-button [nil {:name "Clear All" :values nil}]])])
+  (let [active-preconifg @(re-frame/subscribe [::subs/active-preconfig])]
+    [:div {:class (str styles/inputs-dark-border " shadow-md p-6")}
+     [:h2 {:class styles/default-h2} "Configuration Profiles"]
+     (conj
+      (into [:div]
+            (map #(preconfig-selector-button % active-preconifg) v-configs/sample-config-options-list))
+      [preconfig-selector-button [nil {:name "Clear All" :values nil}]])]))
 
 
 

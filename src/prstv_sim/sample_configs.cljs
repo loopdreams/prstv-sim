@@ -104,6 +104,61 @@
                11 {:name "Candidate K" :party-id 1}
                12 {:name "Candidate L" :party-id 1}}})
 
+;; Running more candiates than other parties
+(def philosophers
+  {:n-votes          "500"
+   :n-seats          "4"
+   :volatility       "5"
+   :preference-depth :deep
+   :party            {1 {:name       "Pre-socratics"
+                         :colour     "Purple"
+                         :popularity "30"}
+                      2 {:name       "Idealists"
+                         :colour     "Yellow"
+                         :popularity "15"}
+                      3 {:name       "Empiricists"
+                         :colour     "Green"
+                         :popularity "10"}
+                      4 {:name       "Hemeneuts"
+                         :colour     "Red"
+                         :popularity "19"}
+                      5 {:name       "Post-structuralists"
+                         :colour     "Blue"
+                         :popularity "11"}}
+   :candidate        {1  {:name "Heraclitus" :party-id 1 :popularity "20"}
+                      2  {:name "Parmenides" :party-id 1 :popularity "55"}
+                      3  {:name "Pythagoras" :party-id 1 :popularity "21"}
+                      4  {:name "Hegel" :party-id 2 :popularity "20"}
+                      5  {:name "Kant" :party-id 2 :popularity "61"}
+                      6  {:name "Locke" :party-id 3 :popularity "14"}
+                      7  {:name "Berkeley" :party-id 3 :popularity "7"}
+                      8  {:name "Heidegger" :party-id 4 :popularity "20"}
+                      9  {:name "Gadamer" :party-id 4 :popularity "13"}
+                      10 {:name "Ricoeur" :party-id 4 :popularity "26"}
+                      11 {:name "Derrida" :party-id 5 :popularity "7"}
+                      12 {:name "Deleuze" :party-id 5 :popularity "21"}
+                      13 {:name "Lyotard" :party-id 5 :popularity "19"}
+                      14 {:name "Foucault" :party-id 5 :popularity "29"}
+                      15 {:name "Nancy" :party-id 5 :popularity "15"}}})
+
+(def two-seater
+  {:n-votes          "1000"
+   :n-seats          "2"
+   :preference-depth :deep
+   :volatility "10"
+   :party            {1 {:name       "Fruits"
+                         :colour     "Red"
+                         :popularity "65"}
+                      2 {:name       "Vegetables"
+                         :colour     "Green"
+                         :popularity "15"}}
+   :candidate        {1 {:name "Apple" :party-id 1 :popularity "21"}
+                      2 {:name "Banana" :party-id 1 :popularity "16"}
+                      3 {:name "Pear" :party-id 1 :popularity "12"}
+                      4 {:name "Broccoli" :party-id 2 :popularity "11"}
+                      5 {:name "String Bean" :party-id 2 :popularity "35"}
+                      6 {:name "Cabbage" :party-id 2 :popularity "20"}}})
+
 
 (def sample-config-options-list
   {:input-default    {:values input-default
@@ -111,4 +166,8 @@
    :input-scenario-a {:values input-senario-a
                       :name   "Highly Popular Candidate"}
    :highly-random    {:values highly-random
-                      :name "Highly Random"}})
+                      :name   "Highly Random"}
+   :philosophers     {:values philosophers
+                      :name   "Philosophers"}
+   :two-seater       {:values two-seater
+                      :name   "Two-seater"}})

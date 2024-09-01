@@ -3,13 +3,22 @@
 
 ;; Colours
 (def colour-styles
-  {"Black"  "#2b2d42"
-   "Yellow" "#FFCA3A"
-   "Red"    "#FF595E"
-   "Blue"   "#1982C4"
-   "White"  "#edf2f4"
-   "Green"  "#8AC926"
-   "Purple" "#6A4C93"})
+  {"Black"  "#3c3836"
+   "Yellow" "#d79921"
+   "Red"    "#cc241d"
+   "Blue"   "#458588"
+   "White"  "#ebdbb2"
+   "Green"  "#8ec07c"
+   "Purple" "#b16286"})
+
+#_(def colour-styles
+    {"Black"  "#2b2d42"
+     "Yellow" "#FFCA3A"
+     "Red"    "#FF595E"
+     "Blue"   "#1982C4"
+     "White"  "#edf2f4"
+     "Green"  "#8AC926"
+     "Purple" "#6A4C93"})
 
 #_(def colour-styles
     {"Black"  "#161925"
@@ -36,7 +45,7 @@
 
 
 (defn spinner []
-  [:div
+  [:div {:class "dark:text-white flex justify-center"}
    [:div#spinner.lds-ring [:div] [:div] [:div] [:div]]])
 
 (comment
@@ -62,6 +71,8 @@
 
 (def config-profile-button "disabled:cursor-not-allowed disabled:opacity-25 text-gray-900 bg-white border-2 border-indigo-400 focus:outline-none hover:bg-indigo-100 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-xs md:text-sm px-3 py-1.5 md:px-5 md:py-2.5 me-2 mb-2 dark:bg-gray-800 dark:text-white dark:border-indigo-600 dark:hover:bg-indigo-400 dark:hover:border-gray-900 dark:focus:ring-gray-700")
 
+(def config-profile-button-active "disabled:cursor-not-allowed disabled:opacity-25 text-gray-900 bg-indigo-100 border-2 border-indigo-700 focus:outline-none hover:bg-indigo-100 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-xs md:text-sm px-3 py-1.5 md:px-5 md:py-2.5 me-2 mb-2 dark:bg-gray-800 dark:text-white dark:border-indigo-600 dark:hover:bg-indigo-400 dark:hover:border-gray-900 dark:focus:ring-gray-700")
+
 (def table-add-button "ml-2 disabled:cursor-not-allowed disabled:opacity-25 text-gray-900 bg-neutral-100 border border-gray-300 focus:outline-none hover:bg-white focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-xs md:text-sm px-3 py-1.5 md:px-5 md:py-2.5 me-2 mb-2 dark:bg-gray-600 dark:text-white dark:border-gray-600 dark:hover:bg-gray-800 dark:hover:border-gray-600 dark:focus:ring-gray-700")
 
 (def special-button "disabled:cursor-not-allowed disabled:opacity-25 font-bold text-teal-50 bg-teal-500 border border-gray-300 focus:outline-none hover:bg-teal-400 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-xs md:text-sm px-4 md:px-5 py-2 md:py-2.5 me-2 mb-2 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700")
@@ -84,7 +95,7 @@
 
 (def table-outer-div "relative overflow-x-auto shadow-md sm:rounded-lg pb-5")
 
-(def table-el "w-full text-xs md:text-sm text-left text-gray-500 dark:text-gray-100")
+(def table-el "text-xs md:text-sm text-left text-gray-500 dark:text-gray-100")
 
 (def table-caption "p-2 md:p-6 text-sm md:text-lg font-semibold text-left rtl:text-right text-gray-900 bg-white dark:text-white dark:bg-gray-800")
 
