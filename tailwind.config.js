@@ -2,7 +2,14 @@
 module.exports = {
   content: ["./src/**/*.{html,js,cljs}"],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        'noto-sans': ['"Noto Sans"', "sans"],
+        'raleway' : ['"Raleway"']
+      },
+    },
   },
-  plugins: [],
-}
+  plugins: [
+  require('@tailwindcss/typography')
+  ]
+};

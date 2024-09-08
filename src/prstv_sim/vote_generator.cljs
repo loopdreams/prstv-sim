@@ -130,8 +130,7 @@
                  (conj voted-candidates vote-for)
                  (assoc v :candidates remove-candidate)))))))
 
-;; TODO optimize
-;; TODO uuids for vote-ids
+;; MAYBE uuids for vote-ids
 (defn prstv-vote-generator [{:keys [n-votes] :as vote-config}]
   (reduce #(assoc %1 %2 (mark-ballot vote-config)) {} (range 1 (inc n-votes))))
 

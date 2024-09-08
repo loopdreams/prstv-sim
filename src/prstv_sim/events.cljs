@@ -92,7 +92,8 @@
             (assoc :my-ballot? nil)
             (assoc :my-ballot nil)
             (assoc :sankey-selector nil)
-            (assoc :sankey-show? false))
+            (assoc :sankey-show? false)
+            (assoc :results-page-link-show true))
     :config-confirmation-msg nil}))
 
 (re-frame/reg-event-db

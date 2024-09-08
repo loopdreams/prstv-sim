@@ -109,3 +109,8 @@
  ::active-preconfig
  (fn [db]
    (:pre-config db)))
+
+(re-frame/reg-sub
+ ::results-page-link-show
+ (fn [db]
+   (:results-page-link-show db)))

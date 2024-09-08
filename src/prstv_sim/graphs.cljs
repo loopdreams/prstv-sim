@@ -169,7 +169,7 @@
         (let [data (-> (graph-create-candidate-vals @config @results)
                        (vega-spec-data->chartjs)
                        (graph-spec-candidates))]
-          [:div {:class "basis-1/2"}
+          [:div {:class "basis-1/2 flex flex-col text-center"}
            [:h2 {:class styles/default-h2} "Candidate First Preference Votes"]
            [chart-first-prefs-render data "chart-candidates-container" "chart-candidates"]]))
       [:div])))
@@ -186,7 +186,7 @@
         (let [data (-> (graph-create-party-vals @config @results)
                        (vega-spec-data->chartjs)
                        (graph-spec-parties))]
-          [:div {:class "basis-1/2"}
+          [:div {:class "basis-1/2 flex flex-col text-center"}
            [:h2 {:class styles/default-h2}
             "Party First Preference Votes"]
            [chart-first-prefs-render data "chart-parties-container" "chart-parties"]]))

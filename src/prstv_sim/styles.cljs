@@ -65,7 +65,9 @@
 
 (def active-tab "inline-block p-4 text-blue-600 border-b-2 border-blue-600 rounded-t-lg active dark:text-blue-300 dark:border-blue-300")
 
-(def default-h2 "font-semibold text-sm md:text-lg py-3 dark:text-white")
+(def default-h2 "font-raleway font-semibold text-sm md:text-lg py-3 dark:text-white")
+
+(def elected-h2 "font-raleway font-bold text-sm pb-5 md:text-lg dark:text-white")
 
 (def default-button "disabled:cursor-not-allowed disabled:opacity-25 text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 font-medium rounded-lg text-xs md:text-sm px-3 py-1.5 md:px-5 md:py-2.5 me-2 mb-2 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700")
 
@@ -93,11 +95,11 @@
 
 (def caution-text "p-4 mb-4 text-sm text-yellow-800 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300")
 
-(def table-outer-div "relative overflow-x-auto shadow-md sm:rounded-lg pb-5")
+(def table-outer-div "relative overflow-x-auto border shadow-md dark:shadow-none sm:rounded-lg p-2 md:p-5")
 
 (def table-el "text-xs md:text-sm text-left text-gray-500 dark:text-gray-100")
 
-(def table-caption "p-2 md:p-6 text-sm md:text-lg font-semibold text-left rtl:text-right text-gray-900 bg-white dark:text-white dark:bg-gray-800")
+(def table-caption "pb-2 md:pb-6 text-sm md:text-lg font-raleway font-semibold text-left rtl:text-right text-gray-900 bg-white dark:text-white dark:bg-gray-800")
 
 (def table-caption-p "mt-1 text-xs md:text-sm font-normal text-gray-500 dark:text-gray-400")
 
@@ -107,4 +109,4 @@
 
 (def table-body "bg-white border-b dark:bg-gray-800 dark:border-gray-700")
 
-(def inputs-dark-border "dark:border border-slate-500 mt-2")
+(def inputs-dark-border "dark:border dark:border-slate-200 rounded-lg mt-2")

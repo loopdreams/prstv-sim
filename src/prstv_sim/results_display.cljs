@@ -43,8 +43,8 @@
 
 (defn elected-display [elected]
   (let [vote-config @(re-frame/subscribe [::subs/vote-config])]
-    [:div
-     [:h2 {:class styles/default-h2} "Elected:"]
+    [:div {:class (str "mt-5 m-auto flex flex-col text-center border shadow-md sm:rounded-lg p-2 md:p-5 " styles/inputs-dark-border)}
+     [:h2 {:class styles/elected-h2} "Elected"]
      (into
       [:div {:class "px-2.5 md:px-5 flex flex-row flex-wrap gap-2 md:gap-4 content-between"}]
       (for [[idx elec] (map-indexed vector elected)]
@@ -56,8 +56,8 @@
   [:thead {:class styles/table-head}
    [:tr
     [:th {:class "px-2 py-4"} "Seat"]
-    [:th {:class "px-2"} "Party"]
     [:th {:class "px-2"} "Candidate"]
+    [:th {:class "px-2"} "Party"]
     [:th {:class "px-2"}"Share"]
     (for [n count-ns]
       ^{:key (inc n)}
@@ -109,10 +109,10 @@
     [:tr
      [:th {:class "px-2 py-2"} (when (some #{position} (range seats)) (inc position))]
      ;; [:td (merge {:class "px-2 py-2"} (styles/get-colour-style party-colour)) party-name]
-     [:td [styles/party-icon party-colour] (str " " party-name)]
      [:th (merge {:class "px-2 py-2 cursor-pointer"
                   :on-click #(re-frame/dispatch [::events/sankey-selector candidate])})
       (inputs/keyword->name candidate)]
+     [:td [styles/party-icon party-colour] (str " " party-name)]
      [:td {:class "px-2 py-2"} (str (candidate candidate-shares) " %")]
      (doall
       (for [n (keys counts-data)]
@@ -133,7 +133,7 @@
                                      (int (* 100 (/ (cand first-prefs) total-votes)))))
                             {}
                             candidates)]
-    [:div {:class "overflow-x-auto"}
+    [:div {:class "overflow-x-auto m-auto"}
      (into
       [:table {:class styles/table-el}]
 
@@ -152,7 +152,7 @@
           ^{:key idx}
           (vote-counts-data-row candidate counts table-data vote-config vote-shares seats elected)))])
 
-     [:div {:class "text-xs md:text-sm px-4 py-6"}
+     [:div {:class "text-xs md:text-sm px-4 py-6 flex flex-col space-y-1"}
       (when my-ballot?
         [:p {:class "dark:text-slate-100"} [:span {:class my-ballot-icon}] " = My Ballot"])
       [:p [:span {:class elected-colours} "Elected"]]

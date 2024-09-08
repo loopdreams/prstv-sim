@@ -77,13 +77,12 @@
         [:div {:class styles/warning-text}
          "Number of seats has to be a number greater than 0 and less than the total number of candidates."])]]))
 
-;; TODO properly format warning here (or remove)
 (defn set-volatility []
   (let [value (re-frame/subscribe [::subs/inputs :volatility])]
     [:div {:class "py-1.5"}
      [:div {:class "flex flex-row"}
       [:label {:class styles/default-label}"Volatility"]
-      [hoverable-info-icon "TODO"]]
+      [hoverable-info-icon "Set the degree of randomness when generating the ballots"]]
      [:div
       [:input
        {:class (str "mt-2 " styles/default-input-field)
@@ -91,10 +90,7 @@
         :value @value
         :placeholder "(Optional) Enter number between 1 and 100"
         :on-change
-        #(re-frame/dispatch [::events/update-inputs :volatility (-> % .-target .-value)])}]
-      (when (and (seq @value) (not (valid-number-volatility?)))
-        [:div.has-text-danger
-         "Use a number between 1 and 100"])]]))
+        #(re-frame/dispatch [::events/update-inputs :volatility (-> % .-target .-value)])}]]]))
 
 ;; TODO set default radio setting
 (defn set-preference-depth []
@@ -119,7 +115,7 @@
 
 
 (defn set-vote-params []
-  [:div {:class (str styles/inputs-dark-border " shadow-md p-6")}
+  [:div {:class (str styles/inputs-dark-border " shadow-md border-2 p-6")}
    [:h2 {:class styles/default-h2} "Vote Parameters"]
    [:form
     [set-number-of-votes]
@@ -215,7 +211,7 @@
 
 (defn party-table-form []
   (let [rows @(re-frame/subscribe [::subs/inputs :party])]
-    [:div {:class styles/inputs-dark-border}
+    [:div
      [table-form-component
       ["Name" "Colour" "Popularity"]
       rows
@@ -230,7 +226,7 @@
 
 (defn candidate-table-form []
   (let [rows @(re-frame/subscribe [::subs/inputs :candidate])]
-    [:div {:class styles/inputs-dark-border}
+    [:div {:class "mt-2"}
      [table-form-component
       ["Name" "Party" "Popularity"]
       rows
@@ -267,7 +263,7 @@
         vote-config @(re-frame/subscribe [::subs/vote-config])
         candidates (:candidates vote-config)]
     (if my-ballot?
-      [:div
+      [:div {:class "md:m-auto md:w-3/5"}
        [:h2 {:class styles/default-h2 } "My Ballot"]
        (into [:div]
              (map #(ballot-form-row % vote-config) candidates))]
@@ -285,7 +281,6 @@
 
 ;; Pre-Configs
 
-;; TODO different button style
 (defn preconfig-selector-button [[_ {:keys [name values]}] active-preconfig]
   [:button
    {:class (if (= active-preconfig name) styles/config-profile-button-active styles/config-profile-button)
@@ -294,7 +289,7 @@
 
 (defn preconfig-options-selector []
   (let [active-preconifg @(re-frame/subscribe [::subs/active-preconfig])]
-    [:div {:class (str styles/inputs-dark-border " shadow-md p-6")}
+    [:div {:class (str styles/inputs-dark-border " border shadow-md p-6")}
      [:h2 {:class styles/default-h2} "Configuration Profiles"]
      (conj
       (into [:div]
@@ -305,15 +300,6 @@
 
 ;; Convert Inputs to Vote Map
 
-
-
-
-
-;; MAYBE Ignore blank candidates
-;; TODO each candidate entry must have all keys
-;; TODO Number of seats less than no. candidates
-;; TODO number votes less than x
-
 (defn valid-inputs? [n-seats n-votes candidates]
   (and
     (< n-seats (count candidates))
@@ -321,9 +307,6 @@
     (every? #(contains? % :name) (vals candidates))
     (every? #(contains? % :party-id) (vals candidates))))
 
-
-;; TODO proper validation here
-;; TODO User feedback when config is added successfully
 (defn inputs->vote-config []
   (let [{:keys [preference-depth
                 n-votes
