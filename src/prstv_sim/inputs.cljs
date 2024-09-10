@@ -231,7 +231,7 @@
       ["Name" "Party" "Popularity"]
       rows
       "Candidates"
-      "Select the candidates ..."]
+      "Select the candidates that will be in the election. Set the party for each candidate and optionally set the popularity rating."]
      [:div.pt-5
       [:button {:class styles/table-add-button
                 :on-click #(re-frame/dispatch [::events/add-blank-table-row :candidate])}
@@ -313,7 +313,9 @@
                 n-seats
                 party
                 candidate
-                volatility]} @(re-frame/subscribe [::subs/inputs])]
+                volatility]} @(re-frame/subscribe [::subs/inputs])
+        my-ballot? @(re-frame/subscribe [::subs/my-ballot?])
+        results? @(re-frame/subscribe [::subs/results])]
     (when (and preference-depth n-votes party candidate volatility)
       (let [c-names      (->> (map (fn [[_ {:keys [name]}]] (name->keyword name)) candidate)
                               (into #{}))
@@ -352,6 +354,9 @@
                    (not (every? #(contains? % :party-id) (vals candidate))))
            [:div {:class (str styles/warning-text " text-center")}
             "Incomplete information for a Candidate in the Candidate Table"])
+         (when (or my-ballot? results?)
+           [:div {:class "text-slate-400 text-center text-sm"}
+            (str "Note: Adding a new vote config will clear results and 'My Ballot'")])
          [:div {:class "h-6"}
           [:span {:id "config-added-confirmation"
                   :class "text-center text-teal-600 text-xs md:text-sm"
