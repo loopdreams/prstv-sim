@@ -110,3 +110,5 @@
 (def table-body "bg-white border-b dark:bg-gray-800 dark:border-gray-700")
 
 (def inputs-dark-border "dark:border dark:border-slate-200 rounded-lg mt-2")
+
+(def tab-menu "text-sm font-medium border-b-2 max-w-sm ml-60 text-center text-gray-500 dark:text-gray-400 dark:border-gray-700")

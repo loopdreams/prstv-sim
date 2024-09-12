@@ -75,7 +75,7 @@
 
 (defn tab-pages []
   [nav-tabs
-   "text-sm font-medium text-center text-gray-500 border-b border-gray-200 dark:text-gray-400 dark:border-gray-700"
+   styles/tab-menu
    (list {:key :inputs
           :label "Configure Vote"
           :component [inputs-panel]}
@@ -90,7 +90,7 @@
           :component [about/about]})])
 
 (defn header-panel []
-  [:div
+  [:div {:class "md:px-60"}
    [:h2 {:class "mb-4 text-2xl md:text-4xl tracking-tight font-raleway font-bold text-gray-900 bg-gradient-to-r from-teal-600 via-teal-800 to-teal-600 inline-block text-transparent bg-clip-text"}
     "Single Transferrable Vote Simulator"]
    [:p {:class "mb-4 text-xs md:text-sm font-light dark:text-gray-100"} "A simulator for STV vote generation and counting"]])
