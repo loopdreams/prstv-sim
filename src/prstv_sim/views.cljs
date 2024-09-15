@@ -12,7 +12,7 @@
 
 
 (defn inputs-panel []
-  [:div {:class "md:w-3/5 md:m-auto"}
+  [:div {:class "md:max-w-prose md:m-auto px-4 md:px-0"}
    [inputs/party-table-form]
    [inputs/candidate-table-form]
    [inputs/set-vote-params]
@@ -27,11 +27,11 @@
      (case loading?
        :loading [styles/spinner]
        :done (let [{:keys [elected] :as results} @(re-frame/subscribe [::subs/results])]
-               [:div {:class "flex flex-col space-y-14"}
-                [results/elected-display elected]
+               [:div {:class "flex flex-col space-y-14 md:px-32"}
                 [:div {:class "flex flex-row flex-wrap"}
                  [graphs/chart-parties-wrapper]
                  [graphs/chart-candidates-wrapper]]
+                [results/elected-display elected]
                 [results/vote-counts-table results]
                 [graphs/candidate-sankey]
                 [graphs/all-candidates-sankey-toggle]
@@ -47,18 +47,20 @@
       [:div
        [:div
         (if @display-tabs?
-          [:div {:class menu-class}
-           [:div {:class "flex text-lg md:hidden"}
-            [:button {:class "fas fa-times"
-                      :on-click #(re-frame/dispatch [::events/toggle-nav-menu])}]]
-           (into [:ul {:class "flex flex-col md:flex-row -mb-px text-xs md:text-sm"}]
-                 (map (fn [{:keys [key label]}]
-                        [:li {:class (if (= @active-tab key) styles/active-tab styles/inactive-tab)
-                              :aria-current (when (= @active-tab key) "page")
-                              :on-click #(reset! active-tab key)}
-                         [:a
-                          label]])
-                      tab-list))]
+          [:div {:class "bg-stone-100 dark:bg-slate-900"}
+           [:div {:class "max-w-prose m-auto"}
+            [:div {:class menu-class}
+             [:div {:class "flex text-lg md:hidden"}
+              [:button {:class "fas fa-times"
+                        :on-click #(re-frame/dispatch [::events/toggle-nav-menu])}]]
+             (into [:ul {:class "flex flex-col md:flex-row -mb-px text-xs md:text-sm"}]
+                   (map (fn [{:keys [key label]}]
+                          [:li {:class (if (= @active-tab key) styles/active-tab styles/inactive-tab)
+                                :aria-current (when (= @active-tab key) "page")
+                                :on-click #(reset! active-tab key)}
+                            [:a
+                             label]])
+                        tab-list))]]]
           [:div {:class "dark:text-white text-2xl"}
            [:button {:class "fas fa-bars"
                      :on-click #(re-frame/dispatch [::events/toggle-nav-menu])}]])]
@@ -90,12 +92,13 @@
           :component [about/about]})])
 
 (defn header-panel []
-  [:div {:class "md:px-60"}
+  [:div {:class "md:max-w-prose md:m-auto bg-stone-100 dark:bg-slate-900"}
    [:h2 {:class "mb-4 text-2xl md:text-4xl tracking-tight font-raleway font-bold text-gray-900 bg-gradient-to-r from-teal-600 via-teal-800 to-teal-600 inline-block text-transparent bg-clip-text"}
     "Single Transferrable Vote Simulator"]
-   [:p {:class "mb-4 text-xs md:text-sm font-light dark:text-gray-100"} "A simulator for STV vote generation and counting"]])
+   [:p {:class "pb-4 text-xs md:text-sm font-light dark:text-gray-100"} "A simulator for STV vote generation and counting"]])
 
 (defn main-panel []
-  [:div {:class "py-8 px-4 mx-auto max-w-screen-xl lg:py-16 lg:px-6"}
-   [header-panel]
+  [:div
+   [:div {:class "bg-stone-100 dark:bg-slate-900 pt-8"}
+    [header-panel]]
    [tab-pages]])

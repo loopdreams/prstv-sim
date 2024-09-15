@@ -263,7 +263,7 @@
         vote-config @(re-frame/subscribe [::subs/vote-config])
         candidates (:candidates vote-config)]
     (if my-ballot?
-      [:div {:class "md:m-auto md:w-3/5"}
+      [:div {:class "md:m-auto md:max-w-prose px-4 md:px-0"}
        [:h2 {:class styles/default-h2 } "My Ballot"]
        (into [:div]
              (map #(ballot-form-row % vote-config) candidates))]

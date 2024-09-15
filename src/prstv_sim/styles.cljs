@@ -63,7 +63,7 @@
 
 (def inactive-tab "inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:border-gray-500 dark:hover:text-gray-300 cursor-pointer")
 
-(def active-tab "inline-block p-4 text-blue-600 border-b-2 border-blue-600 rounded-t-lg active dark:text-blue-300 dark:border-blue-300")
+(def active-tab "bg-stone-200 dark:bg-slate-700 inline-block p-4 text-blue-600 border-b-2 border-blue-600 rounded-t-lg active dark:text-blue-300 dark:border-blue-300")
 
 (def default-h2 "font-raleway font-semibold text-sm md:text-lg py-3 dark:text-white")
 
@@ -111,4 +111,4 @@
 
 (def inputs-dark-border "dark:border dark:border-slate-200 rounded-lg mt-2")
 
-(def tab-menu "text-sm font-medium border-b-2 max-w-sm ml-60 text-center text-gray-500 dark:text-gray-400 dark:border-gray-700")
+(def tab-menu "text-sm font-medium border-b-2 text-center text-gray-500 dark:text-gray-400 dark:border-gray-700")
