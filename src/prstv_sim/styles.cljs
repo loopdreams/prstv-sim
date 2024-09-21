@@ -43,7 +43,6 @@
   [:span {:class "fas fa-circle pr-1"
           :style {:color (colour-styles colour)}}])
 
-
 (defn spinner []
   [:div {:class "dark:text-white flex justify-center"}
    [:div#spinner.lds-ring [:div] [:div] [:div] [:div]]])
@@ -63,7 +62,7 @@
 
 (def inactive-tab "inline-block p-4 border-b-2 border-transparent rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:border-gray-500 dark:hover:text-gray-300 cursor-pointer")
 
-(def active-tab "bg-stone-200 dark:bg-slate-700 inline-block p-4 text-blue-600 border-b-2 border-blue-600 rounded-t-lg active dark:text-blue-300 dark:border-blue-300")
+(def active-tab "bg-stone-200 dark:bg-slate-700 inline-block p-4 text-slate-950 border-b-2 border-teal-600 rounded-t-lg active dark:text-blue-300 dark:border-blue-300")
 
 (def default-h2 "font-raleway font-semibold text-sm md:text-lg py-3 dark:text-white")
 
@@ -95,7 +94,7 @@
 
 (def caution-text "p-4 mb-4 text-sm text-yellow-800 rounded-lg bg-yellow-50 dark:bg-gray-800 dark:text-yellow-300")
 
-(def table-outer-div "relative overflow-x-auto border shadow-md dark:shadow-none sm:rounded-lg p-2 md:p-5")
+(def table-outer-div "relative overflow-x-auto border dark:border-slate-400 shadow-md dark:shadow-none sm:rounded-lg p-2 md:p-5")
 
 (def table-el "text-xs md:text-sm text-left text-gray-500 dark:text-gray-100")
 

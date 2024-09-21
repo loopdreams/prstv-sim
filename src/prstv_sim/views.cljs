@@ -41,29 +41,19 @@
 ;; pattern taken from this useful guide - https://medium.com/@kirill.ishanov/using-containers-with-reagent-and-re-frame-ba88c481335d
 (defn nav-tabs [menu-class tab-list]
   (let [active-tab (reagent/atom (:key (first tab-list)))
-        display-tabs? (re-frame/subscribe [::subs/display-tabs?])
         link-to-results-page (re-frame/subscribe [::subs/results-page-link-show])]
     (fn []
       [:div
-       [:div
-        (if @display-tabs?
-          [:div {:class "bg-stone-100 dark:bg-slate-900"}
-           [:div {:class "max-w-prose m-auto"}
-            [:div {:class menu-class}
-             [:div {:class "flex text-lg md:hidden"}
-              [:button {:class "fas fa-times"
-                        :on-click #(re-frame/dispatch [::events/toggle-nav-menu])}]]
-             (into [:ul {:class "flex flex-col md:flex-row -mb-px text-xs md:text-sm"}]
-                   (map (fn [{:keys [key label]}]
-                          [:li {:class (if (= @active-tab key) styles/active-tab styles/inactive-tab)
-                                :aria-current (when (= @active-tab key) "page")
-                                :on-click #(reset! active-tab key)}
-                            [:a
-                             label]])
-                        tab-list))]]]
-          [:div {:class "dark:text-white text-2xl"}
-           [:button {:class "fas fa-bars"
-                     :on-click #(re-frame/dispatch [::events/toggle-nav-menu])}]])]
+       [:div {:class "bg-stone-100 dark:bg-slate-800"}
+        [:div {:class "max-w-prose m-auto"}
+         [:div {:class menu-class}
+          (into [:ul {:class "flex flex-col md:flex-row -mb-px text-xs md:text-sm"}]
+                (map (fn [{:keys [key label]}]
+                       [:li {:class (if (= @active-tab key) styles/active-tab styles/inactive-tab)
+                             :aria-current (when (= @active-tab key) "page")
+                             :on-click #(reset! active-tab key)}
+                        [:a label]])
+                     tab-list))]]]
        ^{:key @active-tab}
        [:div {:class "py-6"}
         (->> tab-list
@@ -92,13 +82,13 @@
           :component [about/about]})])
 
 (defn header-panel []
-  [:div {:class "md:max-w-prose md:m-auto bg-stone-100 dark:bg-slate-900"}
-   [:h2 {:class "mb-4 text-2xl md:text-4xl tracking-tight font-raleway font-bold text-gray-900 bg-gradient-to-r from-teal-600 via-teal-800 to-teal-600 inline-block text-transparent bg-clip-text"}
+  [:div {:class "md:max-w-prose md:m-auto bg-stone-100 dark:bg-slate-800"}
+   [:h2 {:class "mb-4 text-2xl md:text-4xl tracking-tight font-raleway font-bold text-gray-900 bg-gradient-to-r from-teal-600 via-teal-800 to-teal-600 dark:from-slate-200 dark:to-gray-300 inline-block text-transparent bg-clip-text"}
     "Single Transferrable Vote Simulator"]
    [:p {:class "pb-4 text-xs md:text-sm font-light dark:text-gray-100"} "A simulator for STV vote generation and counting"]])
 
 (defn main-panel []
   [:div
-   [:div {:class "bg-stone-100 dark:bg-slate-900 pt-8"}
+   [:div {:class "bg-stone-100 dark:bg-slate-800 pt-8"}
     [header-panel]]
    [tab-pages]])

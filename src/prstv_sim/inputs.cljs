@@ -218,11 +218,11 @@
       "Parties"
       "Set the parties that will be running in the election. Set the party name, how popular the party is, and a colour for the party."
       :party]
-     [:div {:class "pt-5"}
+     [:div {:class "pt-5 flex flex-col items-center"}
       [:button
        {:class styles/table-add-button
         :on-click #(re-frame/dispatch [::events/add-blank-table-row :party])}
-       "Add Party"]]]))
+       [:span {:class "fas fa-plus"}] " Add Party"]]]))
 
 (defn candidate-table-form []
   (let [rows @(re-frame/subscribe [::subs/inputs :candidate])]
@@ -232,10 +232,10 @@
       rows
       "Candidates"
       "Select the candidates that will be in the election. Set the party for each candidate and optionally set the popularity rating."]
-     [:div.pt-5
+     [:div {:class "pt-5 flex flex-col items-center"}
       [:button {:class styles/table-add-button
                 :on-click #(re-frame/dispatch [::events/add-blank-table-row :candidate])}
-       "Add Candidate"]]]))
+       [:span {:class "fas fa-plus"}] " Add Candidate"]]]))
 
 
 ;; My Ballot
