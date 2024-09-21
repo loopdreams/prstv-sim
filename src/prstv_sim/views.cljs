@@ -82,8 +82,8 @@
           :component [about/about]})])
 
 (defn header-panel []
-  [:div {:class "md:max-w-prose md:m-auto bg-stone-100 dark:bg-slate-800"}
-   [:h2 {:class "mb-4 text-2xl md:text-4xl tracking-tight font-raleway font-bold text-gray-900 bg-gradient-to-r from-teal-600 via-teal-800 to-teal-600 dark:from-slate-200 dark:to-gray-300 inline-block text-transparent bg-clip-text"}
+  [:div {:class "md:max-w-prose md:m-auto bg-stone-100 dark:bg-slate-800 border-b-2 md:border-none"}
+   [:h2 {:class "mb-4 text-3xl md:text-4xl tracking-tight font-raleway font-bold text-gray-900 bg-gradient-to-r from-teal-600 via-teal-800 to-teal-600 dark:from-slate-200 dark:to-gray-300 inline-block text-transparent bg-clip-text"}
     "Single Transferrable Vote Simulator"]
    [:p {:class "pb-4 text-xs md:text-sm font-light dark:text-gray-100"} "A simulator for STV vote generation and counting"]])
 
