@@ -5,7 +5,8 @@
    [prstv-sim.events :as events]
    [prstv-sim.sample-configs :as v-configs]
    [prstv-sim.styles :as styles]
-   [clojure.string :as str]))
+   [clojure.string :as str]
+   [fontawesome.icons :as icons]))
 
 (def n-votes-limit 900000)
 (def n-votes-warning 90000)
@@ -32,8 +33,8 @@
   [:div {:class "grow pl-2 dark:text-slate-200"}
    [styles/tooltip
     info-text
-    [:span.icon
-     [:i {:class "fas fa-info-circle"}]]]])
+    (icons/render (icons/icon :fontawesome.solid/circle-info)
+                  {:size 14})]])
 
 ;; Vote Configs
 
@@ -141,10 +142,13 @@
      (str/join " "))))
 
 (def delete-icon
-  [:span {:class "fas fa-times"}])
+  (icons/render (icons/icon :fontawesome.solid/x)
+                {:size 12}))
 
 (def delete-icon-disabled
-  [:span {:class "fas fa-times text-slate-200 dark:text-slate-600"}])
+  [:span {:class "text-slate-200 dark:text-slate-600"}
+   (icons/render (icons/icon :fontawesome.solid/x)
+                 {:size 12})])
 
 (defn table-field-input-el [table id column val type & colour]
   [:td {:class styles/table-cell}
@@ -222,7 +226,9 @@
       [:button
        {:class styles/table-add-button
         :on-click #(re-frame/dispatch [::events/add-blank-table-row :party])}
-       [:span {:class "fas fa-plus"}] " Add Party"]]]))
+       "Add Party "
+       (icons/render (icons/icon :fontawesome.solid/plus)
+                     {:size 14})]]]))
 
 (defn candidate-table-form []
   (let [rows @(re-frame/subscribe [::subs/inputs :candidate])]
@@ -235,7 +241,9 @@
      [:div {:class "pt-5 flex flex-col items-center"}
       [:button {:class styles/table-add-button
                 :on-click #(re-frame/dispatch [::events/add-blank-table-row :candidate])}
-       [:span {:class "fas fa-plus"}] " Add Candidate"]]]))
+       "Add Candidate "
+       (icons/render (icons/icon :fontawesome.solid/plus)
+                     {:size 14})]]]))
 
 
 ;; My Ballot

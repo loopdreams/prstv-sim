@@ -3,7 +3,8 @@
             [prstv-sim.events :as events]
             [prstv-sim.inputs :as inputs]
             [prstv-sim.styles :as styles]
-            [re-frame.core :as re-frame]))
+            [re-frame.core :as re-frame]
+            [fontawesome.icons :as icons]))
 
 ;; Generate Results
 (defn convert-my-ballot [preferences]
@@ -66,7 +67,10 @@
 
 (def elected-colours "font-bold bg-teal-100 text-teal-500 p-0.5 rounded")
 (def eliminated-colours "font-bold bg-red-100 text-red-500 p-0.5 rounded")
-(def my-ballot-icon "fas fa-scroll")
+
+(def my-ballot-icon
+  (icons/render (icons/icon :fontawesome.solid/scroll)
+                {:size 16}))
 
 (defn format-count-table-cell [{:keys [count count-change elected eliminated marked-ballot candidate nth-col]}]
   [:td
@@ -79,7 +83,7 @@
    count
    (when count-change
      [:span {:class "text-stone-400"} (str " (+ " count-change ")")])
-   (when marked-ballot [:span {:class my-ballot-icon} " "])])
+   (when marked-ballot [:span {:class "pl-1"} my-ballot-icon])])
 
 (defn count-n-data-row [candidate nth-col counts-data table-data elected]
   (let [exit-at        (-> candidate table-data :exit)
@@ -154,6 +158,6 @@
 
      [:div {:class "text-xs md:text-sm px-4 py-6 flex flex-col space-y-1"}
       (when my-ballot?
-        [:p {:class "dark:text-slate-100"} [:span {:class my-ballot-icon}] " = My Ballot"])
+        [:p {:class "dark:text-slate-100"} my-ballot-icon " = My Ballot"])
       [:p [:span {:class elected-colours} "Elected"]]
       [:p [:span {:class eliminated-colours} "Eliminated"]]]]))

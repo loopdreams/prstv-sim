@@ -1,4 +1,5 @@
-(ns prstv-sim.styles)
+(ns prstv-sim.styles
+  (:require [fontawesome.icons :as icons]))
 
 
 ;; Colours
@@ -40,8 +41,10 @@
 
 
 (defn party-icon [colour]
-  [:span {:class "fas fa-circle pr-1"
-          :style {:color (colour-styles colour)}}])
+  (icons/render (icons/icon :fontawesome.solid/circle)
+                {:size 16
+                 :color (colour-styles colour)
+                 :class "pr-1"}))
 
 (defn spinner []
   [:div {:class "dark:text-white flex justify-center"}
