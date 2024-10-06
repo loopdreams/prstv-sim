@@ -21,7 +21,7 @@ Counting votes fairly in an election is hard. There are many different methods a
 
 As an Irish citizen, I recently became curious about how votes are counted in our own electoral system. Ireland uses the **single transferable vote** (STV) version of a **proportional representation** voting system. This system is also used in a few other countries like Malta and Australia.
 
-When voting in an election, we have a ballot that lists all the candidates. Then, we mark our **preference**, beginning with the number &rsquo;1&rsquo;, across the ballot. You can assign a preference to as many or as few candidates as you wish. For example, a ballot might look like this:
+When voting in an election, we have a ballot that lists all the candidates. Then, we mark our **preference** across the ballot, beginning with the number 1 for our first preference. You can assign a preference to as many or as few candidates as you wish. For example, a ballot might look like this:
 
 -   Candidate A (3)
 -   Candidate B (1)
@@ -54,7 +54,7 @@ If you are unfamiliar with this kind of system you might notice a few peculiar t
 
 For example, consider the following result:
 
-![Sample Vote Counts Table](./img/sample_vote_counts_table.png)
+![Sample Vote Counts Table](./img/examples/example_table.jpg)
 
 As we can see, the candidate &ldquo;Minnie Mouse&rdquo; only received 12% of the first preference votes, while &ldquo;Snow White&rdquo; received 14%. Yet, &ldquo;Minnie Mouse&rdquo; was elected while &ldquo;Snow White&rdquo; was not.
 
@@ -64,11 +64,11 @@ Right until the penultimate count (Count 4), &ldquo;Minnie Mouse&rdquo; was stil
 
 This is what the &ldquo;Minnie Mouse&rdquo; vote transfers looked like in this particular simulation. As you can see, most came from &ldquo;Mickey Mouse&rdquo;:
 
-![Minnie Mouse Vote Flows](./img/minnie_mouse_vote_flows.png)
+![Minnie Mouse Vote Flows](./img/examples/minniem_vote_flows.jpg)
 
 And here is a view of where the &ldquo;Mickey Mouse&rdquo; vote transfers went:
 
-![Mickey Mouse Vote Flows](./img/mickey_mouse_vote_flows.png)
+![Mickey Mouse Vote Flows](./img/examples/mickeym_vote_flows.jpg)
 
 This kind of voting system, where the other preferences for a candidate can **transfer** in subsequent counts, is designed to ensure a fairer, more proportional representation of the electorates preferences. Unlike, for example, the &ldquo;First Past the Post&rdquo; voting systems, these kinds of systems are more suitable for elections with multiple parties and a broader range of views/positions.
 
@@ -117,7 +117,7 @@ In the case of this website, the last condition (about recoupment of expenses) w
 
 The surplus is distributed based on the next available preference for continuing candidates contained in the **last parcel of votes that brought the elected candidate over the quota**.
 
-This is the part that I found very difficult to understand, and which caused me to try to investigate this a bit further.
+This is the part that I found very difficult to understand, and which caused me to try to investigate this a bit further. Here is another description of the process:
 
 > The most complex part of the counting process relates to the distribution of surplus votes.
 >
@@ -131,14 +131,9 @@ Let&rsquo;s imagine that one candidate (candidate *:A*) got 250 votes and the qu
 
 The way to determine **how** these votes will be re-distributed, at least according to the Irish system, is as follows:
 
-1.  If the ballots for the candidate consist of **only first preference votes** (i.e., this will be the case after the first count),
+1.  If the ballots for the candidate consist of **only first preference votes** (i.e., this will be the case after the first count), then **all of the elected candidate&rsquo;s** ballots are examined to determine how the surplus will be split proportionally
 
-then **all of the elected candidate&rsquo;s** ballots are examined to determine how the surplus will be split
-proportionally
-
-1.  If the ballots are not only first preference for that candidate, then **the last parcel of votes** that brought the
-
-elected candidate over the quota are examined to determine the proportionality.
+2.  If the ballots are not only first preference for that candidate, then **the last parcel of votes** that brought the elected candidate over the quota are examined to determine the proportionality.
 
 So, in the above case, if the candidate reached 250 votes on the first count (which counts first preferences), then
 all 250 votes will be examined.
@@ -156,7 +151,7 @@ If no candidate has reached the surplus, or if the surplus cannot be redistribut
 
 ## Source Code
 
-If you are interested in the source code behind this approach, I have written up a short explaination of how the votes were generated and how the counting worked.
+If you are interested in the source code behind this approach, [I have written up a short explanation](https://eoin.site/prstv-docs/) of how the votes were generated and how the counting worked.
 
 "))
 
