@@ -22,7 +22,7 @@ Building involves the following steps:
 clojure -Sdeps "{:deps {no.cjohansen/fontawesome-clj {:mvn/version \"2024.01.22\"} \
                         clj-http/clj-http {:mvn/version \"3.12.3\"} \
                         hickory/hickory {:mvn/version \"0.7.1\"}}}" \
-  -M -m fontawesome.import :download resources 6.4.2 && echo "DONE: fontawesome icon spec downloaded to resources/font-awesome "
+  -M -m fontawesome.import :download resources 6.4.2 
 ```
 
 2. Install the npm modules
