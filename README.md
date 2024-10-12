@@ -34,7 +34,7 @@ npm i
 3. Compile the tailwind css
 
 ``` sh
-npx tailwindcss -i ./resources/public/css/main.css -o ./resources/public/css/tw.css && echo "DONE: Tailwind css generated."
+npx tailwindcss -i ./resources/public/css/main.css -o ./resources/public/css/tw.css 
 ```
 
 4. Compile the bundled javascript
